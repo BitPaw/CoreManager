@@ -1,4 +1,24 @@
-main: de.PlayerPing.SSC.Main
-name: PlayerPing
-version: 1.0
+name: CoreManager
+version: 0.02
+description:
+load: POSTWORLD
 author: BitPaw
+website:
+main: de.SSC.CoreManager.Main
+prefix: CoreManager
+commands:
+  rain:
+    description: Toggles the rain.
+    aliases: [rain, RAIN, Rain]
+    permission: CoreManager.weather
+    usage: /rain
+  day:
+    description: Makes the day.
+   #aliases: [day, Day, DAY]
+   #permission: CoreManager.weather
+    # usage: /day
+  changename:
+     description: Changes the player name.
+     aliases: [changename, CHANGENAME, cn, CN]
+     permission: CoreManager.changename
+     usage: /changename [player]
