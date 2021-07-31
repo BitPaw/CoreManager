@@ -1,13 +1,18 @@
 name: CoreManager
-version: 0.4.1
+version: 1.0.3
 description: Manages many elements imgame
 load: POSTWORLD
 author: BitPaw
 website:
 api-version: 1.13
-main: de.SSC.Main
+main: de.BitFire.Main
 prefix: CoreManager
 commands:
+  back:
+    description: Teleport to the Last Location.
+    aliases: [b]
+    permission: CoreManager.Back
+    usage: /Back
   listplayer:
     description: List all registered players.
     aliases: [lp]
@@ -27,6 +32,10 @@ commands:
     aliases: [ci]
     permission: CoreManager.ClearInventory
     usage: /clearinventory 
+  pvp:
+    description: PvP Commands
+    permission: CoreManager.PvP
+    usage: /pvp 
   hat:
     description: Puts a block as hat
     permission: CoreManager.Hat
@@ -219,3 +228,8 @@ commands:
     aliases: [p]
     usage: /pay <amount> <target>
     permission: CoreManager.Money.Transfer
+  portal:
+    description: Creation and modfication of Portals
+    aliases: [pt]
+    usage: /portal <parameters>
+    permission: CoreManager.Portal    
