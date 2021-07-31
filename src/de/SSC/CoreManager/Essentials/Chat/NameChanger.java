@@ -1,59 +1,65 @@
 package de.SSC.CoreManager.Essentials.Chat;
 
+import de.SSC.CoreManager.Config.Messages;
+import de.SSC.CoreManager.CoreController;
+import de.SSC.CoreManager.Main;
+import de.SSC.CoreManagerPlugins.BukkitHook;
+import de.SSC.CoreManagerPlugins.DataBaseController;
 import org.bukkit.command.CommandSender;
-import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 
-import de.SSC.CoreManager.Messages;
-import de.SSC.CoreManager.Color.Logger;
-import net.minecraft.server.v1_12_R1.EntityPlayer;
-import net.minecraft.server.v1_12_R1.EntityTracker;
-import net.minecraft.server.v1_12_R1.WorldServer;
-
-public class NameChanger 
+public class NameChanger
 {	
-	public boolean CheckCommand(CommandSender sender, String[] args)
-	{	
-		 if (!(sender instanceof CraftPlayer))
-		    {
-		      sender.sendMessage(Messages.Error + Messages.NotForConsole);
-		      return false;
-		    }
-		    
-		    if (sender.hasPermission(Messages.PermissionChangeName))
-		    {
-		      EntityPlayer player = ((CraftPlayer)sender).getHandle();
-		      Player senderplayer = (Player)sender;
-		      
-		      if (args.length > 0)
-		      {
-		    	  String out = Messages.Info + Messages.NameChanged +  args[0];
-		    	  
-		        sender.sendMessage(Logger.TransformToColor(out));
-		        senderplayer.setDisplayName(args[0]);
-		        SetPlayerName(player, args[0]);
-		      }
-		      else
-		      {		 
-		    	  String out = Messages.Error + Messages.NameChangesWrongCommand;
-		    	  
-		        sender.sendMessage(Logger.TransformToColor(out));
-		      }
-		      
-		      return true;
-		    }
-		    sender.sendMessage("Nope, can't do that!");
-		    return false;
+	private BukkitHook _bukkitHook ;
+	private DataBaseController _dataBaseController;
+
+	public NameChanger()
+	{
+		CoreController coreController = CoreController.GetInstance();
+
+		_bukkitHook = coreController._BukkitHook;
+		_dataBaseController = coreController._DataBaseController;
+	}	
+
+	public void SetPlayerName(CommandSender sender, String[] parameter)
+	{			  
+		if(_bukkitHook.CheckIfCommandSenderIsPlayer(sender))
+		{
+			Messages messages = Main.messages;
+			Player player = (Player)sender;		
+			String name = parameter[0];
+			String customName = "";
+
+
+			if(name.isEmpty() || name.equalsIgnoreCase(player.getName()))
+			{
+				customName = player.getName();
+			}
+			else
+			{
+				customName = _bukkitHook.TransformColor(name);
+			}	
+			
+			player.setCustomName(customName);
+			_bukkitHook.SendMessage(player, messages.Info + "Name changed to " + customName);
+			_dataBaseController.UpdateCustomName(player);
+		}		
 	}
-	
-	
-	
-	  public void SetPlayerName(EntityPlayer player, String name)
-	  {
-	    WorldServer world = (WorldServer)player.world;
-	    EntityTracker tracker = world.tracker;
-	    tracker.untrackEntity(player);
-	    player.displayName = Logger.TransformToColor(name);
-	    tracker.track(player);
-	  }
+
+	public void LoadPlayerName(Player player, DataBaseController dataBaseController)
+	{
+		// Defaultname
+		String name = dataBaseController.GetCustomName(player);
+
+		if(name == null)
+		{
+			// Sets
+			player.setCustomName(player.getName());
+		}
+		else
+		{
+			// Sets
+			player.setCustomName(_bukkitHook.TransformColor(name));
+		}		
+	}
 }

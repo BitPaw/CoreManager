@@ -4,6 +4,11 @@ public class Money
 {
 	private double _value = 0;
 	
+	public Money(float value)
+	{
+		_value = value;
+	}
+	
 	// Admin
 	public void Add(float amount)
 	{
