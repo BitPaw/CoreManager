@@ -25,6 +25,8 @@ public class MessagesConsoleIO implements IConfig
 	public String NoParameters;
 	public String LoadingFiles;
 	public String LoadedFiles;
+	public String TooManyParameters;
+	public String NotEnoughParameters;
 	
 	public void LoadDefaults() 
 	{
@@ -45,6 +47,8 @@ public class MessagesConsoleIO implements IConfig
 		   Loading = "&7[&6>&7]&6 ";
 		
 		   NotForConsole = "&cThis command is not for the console!";	
+		   TooManyParameters = "&cToo many &7parameters!";
+		   NotEnoughParameters = "&cNot enough &7parameters!";
 		   
 		   ErrorArrow = " &4>>&c ";
 		   

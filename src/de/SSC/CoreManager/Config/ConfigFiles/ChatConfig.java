@@ -16,6 +16,8 @@ public class ChatConfig implements IConfig
 	public boolean ShowPrefx;		
 	public boolean ShowSuffix;		
 	
+	public boolean ShowUserSystemTag;
+	
 	public String WorldSyntax;
 	public String PlayerDisplaySyntax;
 	public String MessageSyntax;;		 
@@ -34,6 +36,7 @@ public class ChatConfig implements IConfig
 		ShowPrefx = true;
 		ShowSuffix = false;			
 			 
+		ShowUserSystemTag = false;
 		WorldSyntax = "&7[&e{WORLD}&7]";					
 		PlayerDisplaySyntax= "&7[&6{RANK}&7][{OP}{RANKCOLOR}{PLAYER}&7]";			
 		MessageSyntax = " &r&f{MESSAGE}";				 			 

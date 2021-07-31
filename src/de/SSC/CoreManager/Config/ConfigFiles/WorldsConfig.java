@@ -4,26 +4,32 @@ import de.SSC.CoreManager.Config.IConfig;
 
 public class WorldsConfig implements IConfig
 {
-public String MapsFolder;
+	public String MapsFolderBackSlash;
+	public String MapsFolderSlash;
 
-	
-	
-	
 	public void LoadDefaults() 
 	{
-		MapsFolder = "Maps/";
-
+		MapsFolderSlash = "Maps/";
+		MapsFolderBackSlash = "Maps\\";
 	}
 	
 	public String AddFolderName(String worlsName)
 	{
-		return MapsFolder + worlsName;
+		return MapsFolderSlash + worlsName;
 	}
 
-public String RemoveFolderName(String worlsName)
-{
-	return worlsName.replace(MapsFolder, "");
-}
-
-
+	public String RemoveFolderName(String worlsName)
+	{
+		if(worlsName.contains("/"))
+		{
+			worlsName = worlsName.replace(MapsFolderSlash, "");
+		}
+		
+		if(worlsName.contains("\\"))
+		{
+			worlsName = worlsName.replace(MapsFolderBackSlash, "");
+		}
+		
+		return worlsName;
+	}
 }

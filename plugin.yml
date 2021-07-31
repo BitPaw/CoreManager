@@ -1,22 +1,41 @@
 name: CoreManager
-version: 0.3.2
+version: 0.3.4
 description: Manages many elements imgame
 load: POSTWORLD
 author: BitPaw
 website:
 depend:
+api-version: 1.13
 main: de.SSC.Main
 prefix: CoreManager
 commands:
+  hat:
+    description: Puts a block as hat
+    permission: CoreManager.Hat
+    usage: /hat 
+  head:
+    description: Gets a head
+    permission: CoreManager.Head
+    usage: /head <playername>      
+  creload:
+    description: Reloads the plugin
+    aliases: [cr]
+    permission: CoreManager.Reload
+    usage: /CReload
+  printcolors:
+    description: Shows every color code.
+    aliases: [pc]
+    permission: CoreManager.Color
+    usage: /PrintColors
   whoami:
-    description: Shows personal Data
+    description: Shows personal Data.
     aliases: [me, whoisme]
     permission: CoreManager.WhoAmI
     usage: /WhoAmI
   rain:
     description: Toggles the rain.
     aliases: [rain, RAIN, Rain]
-    permission: CoreManager.weather
+    permission: CoreManager.Color
     usage: /rain
   day:
     description: Makes the day.
@@ -74,6 +93,16 @@ commands:
      aliases: [spawn,s]
      permission: CoreManager.spawn
      usage: /spawn
+  worldspawn:
+     description: Teleport to the world spawn
+     aliases: [worldspawn,wspawn,ws]
+     permission: CoreManager.worldspawn
+     usage: /WorldSpawn
+  teleporttolocation:
+     description: Teleport to a specific location
+     aliases: [tpl]
+     permission: CoreManager.TeleportToLocation
+     usage: /TeleportToLocation <X> <Y> <Z> 
   setspawn:
      description: Sets the spawn point of this world
      aliases: [ss, setspawn, sspawn]
@@ -123,10 +152,11 @@ commands:
      description: Changes your Gamemode
      permission: CoreManager.GameMode
      usage: /gm     
-  editsign:
-     description: A editable sign related command
-     usage: /editsign <subcommand>
-     aliases: [es]
+  clearchat:
+     description: Clears your chat.
+     aliases: [cc]
+     permission: CoreManager.ClearChat
+     usage: /clearchat   
   sql:
     description: SQL commands for the Database
     usage: /sql <command>
@@ -141,6 +171,15 @@ commands:
     aliases: [cs]
     usage: /changeplayertag <command>
     permission: CoreManager.PlayerTag
+  lag:
+    description: Does stuuf to prevent lag.
+    usage: /lag
+    permission: CoreManager.Lag 
+  setlocation:
+    description: Set a location
+    aliases: [sl]
+    usage: /setlocation A or B 
+    permission: CoreManager.SetLocation
   listranks:
     description: Shows all ranks
     aliases: [lr]

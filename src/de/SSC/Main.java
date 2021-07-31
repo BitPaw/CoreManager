@@ -4,9 +4,9 @@ package de.SSC;
 //-----------------------------------------------------------------------------------------------//
 import de.SSC.CoreManager.CoreListener;
 import de.SSC.CoreManager.Config.Config;
-import de.SSC.CoreManager.Messages.Logger;
-import de.SSC.CoreManager.Messages.MessageType;
-import de.SSC.CoreManager.Messages.Module;
+import de.SSC.CoreManager.Systems.Chat.Logger;
+import de.SSC.CoreManager.Systems.Chat.MessageType;
+import de.SSC.CoreManager.Systems.Chat.Module;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -23,10 +23,14 @@ public class Main extends JavaPlugin
     	_logger = Logger.Instance();    	
     	_config  = Config.Instance();    
     	_coreListener = CoreListener.Instance();
+    	_coreListener.SetJavaPlugin(this);
     	
     	_logger.SendToConsole(Module.CoreManager, MessageType.Loading, _config.Messages.ConsoleIO.LoadingFiles);    	
     	
-    	_coreListener.LoadAllInstances();        	
+    	_config.Load();
+    	
+    	_coreListener.LoadAllInstances();       
+    	_coreListener.LoadAllReferences();
     	
     	_logger.SendToConsole(Module.CoreManager, MessageType.Info,_config.Messages.ConsoleIO.LoadedFiles);
     }
@@ -52,7 +56,9 @@ public class Main extends JavaPlugin
 
     @Override
     public void onDisable()
-    {    	    	
+    {    	
+    	_config.Save();
+    	
     	_logger.SendToConsole(Module.CoreManager, MessageType.Offline,_config.Messages.ConsoleIO.Off);
     }
 }

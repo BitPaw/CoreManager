@@ -25,18 +25,16 @@ public class MessagesPlayer implements IConfig
 
 
 	public void LoadDefaults() 
-	{
-
-		
+	{	
 		Creative = "Creative";
 		Survival = "Survival";
 		Adventure = "Adventure";
 		Spectator = "Spectator";
 		
-		GameModeChanged = "&6Gamemode changed from &e<&f{GAMEMODEOLD}&e> &6to &e<&f{GAMEMODENEW}&e>";
+		GameModeChanged = "&7Gamemode &6changed &7from &e<&f{GAMEMODEOLD}&e> &6to &e<&f{GAMEMODENEW}&e>&7.";
 		GameModeChangeError = "GameModeChangeError";
 		
-		HealedByAmount = "Healed by {VALUE}";
+		HealedByAmount = "&aHealed &7by &e<&f{VALUE}&e>&7.";
 		
 		YouAreAlreadyInThisGameMode = "&6You are already in &e<&f{GAMEMODE}&e>&6.";		
 		  
@@ -45,7 +43,7 @@ public class MessagesPlayer implements IConfig
 		FailedToLoadPlayer = "&cFailed to load player!";   
 		PlayerParameterWasNull = "&cThe player parameter was null!";		 
 		FailedToGetPlayerInformation = "&cFailed to load the player information!";
-		UserAdded = "&aUser &2<&f{PLAYER}&2> &aadded!";
-		PlayerNotFound = "&cUser &4<&f{PLAYER}&4> &cwas not found!";
+		UserAdded = "&aUser &2<&a{PLAYER}&2> &aadded!";
+		PlayerNotFound = "&cUser &4<&e{PLAYER}&4> &cwas not found!";
 	}	
 }

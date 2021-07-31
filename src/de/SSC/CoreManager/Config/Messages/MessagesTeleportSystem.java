@@ -19,7 +19,7 @@ public class MessagesTeleportSystem implements IConfig
 	{
 		
 		TeleportSystemTag = "&6[&eTPS&6] ";	
-		Teleporting = "&6Teleporting...";
+		Teleporting = "&7Teleporting...";
 		CouldNotTeleport = "&cCould not teleport!";
 		NoWarpWithThisName = "&cNo warp with this name!";
 		WarpCreated = "&7Warp &6<&f{WARP}&6> &acreated&7.";		

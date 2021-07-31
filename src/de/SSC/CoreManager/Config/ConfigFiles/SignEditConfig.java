@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.SSC.CoreManager.Config.IConfig;
+import de.SSC.CoreManager.Systems.Sign.SignTag;
 
 public class SignEditConfig implements IConfig
 {
@@ -34,8 +35,14 @@ public class SignEditConfig implements IConfig
 	public boolean Logging;
 	
 
+	public SignTag LineTag;	
+	public SignTag TeleportTag;
+	
 	public void LoadDefaults() 
 	{
+		LineTag = new SignTag(":l:","&l-=-=-=-=-=-=-=-=-");
+		TeleportTag = new SignTag(":t:","&7[&3Teleport&7&l]");
+		
 		 ErrorMessage = "&c [ES] : Some error occured.";
 
 			WorldGuard = true;
