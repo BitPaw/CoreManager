@@ -1,4 +1,4 @@
-package com.bringholm.nametagchanger.skin;
+package de.SSC.CoreManager.PlayerTag.skin;
 
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.Validate;

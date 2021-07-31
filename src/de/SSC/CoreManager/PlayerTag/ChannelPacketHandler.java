@@ -1,7 +1,7 @@
 package de.SSC.CoreManager.PlayerTag;
 
-import com.bringholm.packetinterceptor.v1_0.PacketInterceptor;
-import com.bringholm.reflectutil.v1_1_1.ReflectUtil;
+import com.bringholm.PacketInterceptor;
+import com.bringholm.ReflectUtil;
 import com.google.common.collect.Lists;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -52,7 +52,6 @@ public class ChannelPacketHandler extends PacketInterceptor implements IPacketHa
     private static final Constructor<?> PACKET_PLAYER_INFO_CONSTRUCTOR_EMPTY = ReflectUtil.getConstructor(ReflectUtil.getNMSClass("PacketPlayOutPlayerInfo").getOrThrow()).getOrThrow();
     private static final Method ENTITY_PLAYER_GET_GAME_PROFILE = ReflectUtil.getMethodByType(ENTITY_PLAYER, GAME_PROFILE_CLASS, 0).getOrThrow();
     private static final Field PING = ReflectUtil.getField(ENTITY_PLAYER, "ping").getOrThrow();
-    @SuppressWarnings("ConstantConditions")
     private static final Method GET_BY_ID = ReflectUtil.getMethod(ENUM_GAMEMODE, "getById", int.class).getOrThrow();
     private static final Constructor<?> CHAT_COMPONENT_TEXT_CONSTRUCTOR = ReflectUtil.getConstructor(ReflectUtil.getNMSClass("ChatComponentText").getOrThrow(), String.class).getOrThrow();
     private static final Field PLAYER_INFO_ACTION = ReflectUtil.getDeclaredFieldByType(ReflectUtil.getNMSClass("PacketPlayOutPlayerInfo").getOrThrow(), ReflectUtil.getNMSClass("PacketPlayOutPlayerInfo$EnumPlayerInfoAction").getOrThrow(), 0, true).getOrThrow();
@@ -271,6 +270,10 @@ public class ChannelPacketHandler extends PacketInterceptor implements IPacketHa
             case SPECTATOR:
                 id = 3;
                 break;
+		case SURVIVAL:
+			break;
+		default:
+			break;
         }
         return ReflectUtil.invokeMethod(null, GET_BY_ID, id).getOrThrow();
     }

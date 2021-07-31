@@ -2,22 +2,44 @@ package de.SSC.CoreManager.Economy;
 
 public class Money 
 {
-	private double _value = 0;
+	private float _value = 0;
 	
-	public Money(float value)
+	
+public Money(float money)
+{
+	_value = money;
+}
+	
+	public boolean Add(float amount)
 	{
-		_value = value;
+		boolean succsessful = false;
+		
+		if(amount > 0)
+		{
+			
+		}
+		else if(amount == 0)
+		{
+			
+		}		
+		
+		return succsessful;
 	}
 	
-	// Admin
-	public void Add(float amount)
+	public boolean Remove(float amount)
 	{
-		_value += amount;
-	}
-	
-	public void Remove(float amount)
-	{
-		_value -= amount;
+		boolean succsessful = false;
+		
+		if(amount > 0)
+		{
+			
+		}
+		else if(amount == 0)
+		{
+			
+		}		
+		
+		return succsessful;
 	}
 	
 	public double GetValue()

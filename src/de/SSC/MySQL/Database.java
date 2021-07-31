@@ -52,7 +52,8 @@ public abstract class Database {
 	 * 
 	 * @return Connection with the database, null if none
 	 */
-	public Connection getConnection() {
+	public Connection getConnection() 
+	{
 		return connection;
 	}
 

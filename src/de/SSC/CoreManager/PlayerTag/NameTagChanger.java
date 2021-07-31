@@ -1,16 +1,17 @@
 package de.SSC.CoreManager.PlayerTag;
 
-import com.bringholm.mojangapiutil.v1_2.MojangAPIUtil;
-import com.bringholm.nametagchanger.metrics.Metrics;
-import com.bringholm.nametagchanger.skin.Skin;
-import com.bringholm.nametagchanger.skin.SkinCallBack;
-import com.bringholm.reflectutil.v1_1_1.ReflectUtil;
+import com.bringholm.MojangAPIUtil;
+import com.bringholm.ReflectUtil;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+
+import de.SSC.CoreManager.PlayerTag.skin.Skin;
+import de.SSC.CoreManager.PlayerTag.skin.SkinCallBack;
+
 import org.apache.commons.lang.Validate;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
@@ -18,7 +19,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scoreboard.Team;
-
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -364,8 +364,8 @@ public class NameTagChanger {
             packetHandler = new ChannelPacketHandler(plugin);
         }
         enabled = true;
-        Metrics metrics = new Metrics(plugin);
-        metrics.addCustomChart(new Metrics.SimplePie("packet_implementation", () -> packetHandler instanceof ProtocolLibPacketHandler ? "ProtocolLib" : "ChannelInjector"));
+       // Metrics metrics = new Metrics(plugin);
+        //metrics.addCustomChart(new Metrics.SimplePie("packet_implementation", () -> packetHandler instanceof ProtocolLibPacketHandler ? "ProtocolLib" : "ChannelInjector"));
     }
 
     void printMessage(String message) {

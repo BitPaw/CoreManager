@@ -1,9 +1,10 @@
 package de.SSC.CoreManager.Essentials.Chat;
 
-import de.SSC.CoreManager.Messages;
-import de.SSC.CoreManager.Color.Logger;
+import de.SSC.CoreManager.Logger;
+import de.SSC.CoreManager.Config.Config;
+import de.SSC.CoreManager.DataBase.DataTypes.CMPlayer;
+import de.SSC.CoreManager.DataBase.DataTypes.CMPlayerList;
 
-import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -12,23 +13,21 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
 public class ChatManager implements Listener
-{		
-	boolean ShowWorld = true;
-	boolean ShowPrefx = true;
-	boolean ShowSuffix = false;
+{	
+	private Logger _logger;
+	private Config _config;
 	
-	String _world = "&7[&e{WORLD}&7]";
-	String _prefix = "&7[&6{PREFIX}&7]";
-	String _playerName= "&7[&e{NAME}&7]";
-	String _suffix = "&7[&6{SUFFIX}&7]";
-	String _message = " &r&f{MESSAGE}";	
-		
+	public ChatManager()
+	{
+		_logger = Logger.Instance();
+		_config = Config.Instance();
+	}
 	
 	@EventHandler
 	 public void onJoin(PlayerJoinEvent e)
 	 {
 		String playerName = e.getPlayer().getDisplayName();
-		String message = Logger.TransformToColor(Messages.Join + playerName);				
+		String message = _logger.TransformToColor(_config.Messages.Chat.Join + playerName);				
 		
 		e.setJoinMessage(message);
 	 }
@@ -37,52 +36,51 @@ public class ChatManager implements Listener
 	 public void onLeave(PlayerQuitEvent e)
 	 {
 			String playerName = e.getPlayer().getDisplayName();
-			String message = Logger.TransformToColor(Messages.Quit + playerName);				
+			String message = _logger.TransformToColor(_config.Messages.Chat.Quit + playerName);				
 			
 			e.setQuitMessage(message);
-			Logger.Write(message);
+			_logger.Write(message);
 	 }	
 	 
 	  @EventHandler
 	  public void onChat(AsyncPlayerChatEvent e)
 	  {
-	    Player p = e.getPlayer();		    
+	    Player player = e.getPlayer();	
+	    CMPlayerList  cmPlayerList = CMPlayerList.Instance();
+	    CMPlayer cmPlayer = cmPlayerList.GetPlayer(player);
+	    String worldName =player.getWorld().getName();	    
+	    String message = "";
 	    
-	    String format = "";
+	    worldName = worldName.split("/")[1];
 	    
-	    if(ShowWorld) format += _world;
-	    if(ShowPrefx) format += _prefix;
-	    format += _playerName;
-	    if(ShowSuffix) format += _suffix;
-	    format += _message;
-	   
-	    format = format.replace("{NAME}", e.getPlayer().getDisplayName());
-	    format = format.replace("{WORLD}", p.getWorld().getName());
+	    if(_config.Chat.ShowWorld)
+	    {
+	    	message += _config.Chat.WorldSyntax;
+	    }
 	    
-	    format = format.replace("{PREFIX}", "&aI");
-	    format = format.replace("{SUFFIX}", "");	    
+	    if(_config.Chat.ShowPrefx) 
+	    {
+	    	message += _config.Chat.PrefixSyntax;	  
+	    }	    
+	
+	    message += _config.Chat.PlayerNameSyntax;			    
 	    
-	    format = ChatColor.translateAlternateColorCodes('&', format);
-	    format = format.replace("{MESSAGE}", e.getMessage());
-	    e.setFormat(format);
-	  }
-	  
-	  public String replaceVault(Player p, String message)
-	  {
-	    String holders = message;
+	    if(_config.Chat.ShowSuffix) 
+	    {
+	    	message += _config.Chat.SuffixSyntax;
+	    }	    
 	    
-	    String rank = null;
-	    String prefix = null;
-	    String suffix = null;
+	    message += _config.Chat.MessageSyntax;
 	    
-	  //prefix = this.plugin.chat.getPlayerPrefix(p);
-	  //  suffix = this.plugin.chat.getPlayerSuffix(p);
-	   // rank = this.plugin.perms.getPrimaryGroup(p);
 	    
-	    holders = holders.replace("{PREFIX}", prefix);
-	    holders = holders.replace("{SUFFIX}", suffix);
-	    holders = holders.replace("{RANK}", rank);
+	    message = _config.Chat.SetWorldTag(worldName, message);
+	    message = _config.Chat.SetRankTag(cmPlayer.RankGroup, message);
+	    message = _config.Chat.SetOPTag(player.isOp(), message);
+	    message = _config.Chat.SetNameTag(cmPlayer, message);
+	    message = _config.Chat.SetMessageTag(e.getMessage(), message);	    
 	    
-	    return holders;
+	    message = _logger.TransformToColor(message);
+	    
+	    e.setFormat(message);
 	  }
 }

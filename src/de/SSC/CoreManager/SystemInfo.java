@@ -1,7 +1,5 @@
 package de.SSC.CoreManager;
 
-import de.SSC.CoreManager.Color.Logger;
-
 public class SystemInfo 
 {
 	Runtime runtime = null;
@@ -42,7 +40,9 @@ public void GetSystemInfos()
 	    out = out.replace("{HostName}",  systemInformation.HostName);
 	    out = out.replace("{IPAddress}",  systemInformation.IPAddress); 
 
-	    Logger.Write(out);
+	    Logger logger = Logger.Instance();
+	    
+	    logger.Write(out);
 }
 	
 	   

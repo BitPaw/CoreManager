@@ -2,47 +2,44 @@ package de.SSC.CoreManager.Config;
 
 public class Config 
 {
-  public char ColorCombineChar = '&';
-  public String OPPermission = "&4$&r";
+	private static Config _instance;
+
+	public ChatConfig Chat;
+	public PingConfig Ping;
+  public MessagesConfig Messages;
+  public MySQLConfig MySQL;
+  public EconemyConfig Econemy;
+  public RankConfig Rank;
+
+  private Config()
+  {
+	  MySQL = new MySQLConfig();	
+	  Messages = new MessagesConfig();
+	  Chat = new ChatConfig();
+	  Ping = new PingConfig();
+	  Econemy = new EconemyConfig();
+	  Rank = new RankConfig();
+	  
+	  LoadAllDefaults();
+  }
   
-  public boolean ShowPlayerCommands = true;
-
-
-  public boolean ChatColor = true;
-  public boolean ConsoleColor = true;
-
-
-
-  // MySQL
-  public boolean ShowSQLCommands = true;
-  public String Hostname = "localhost";
-  public String Port = "3306";
-  public String Database = "cakecraft";
-  public String Username = "root";
-  public String Password = "";
-
-  //
-  public int PingTabListDelayMs = 10; // x * 50ms = 1 Tick
-
-  // Money
-  public char Currency = '€';
-  public int StartMoney = 200;
-
-  // Multiverse
-  public String WorldsFolder = "Maps";
-
-  public void Load()
+  public static Config Instance() 
   {
-
+	  if(_instance == null)
+	  {
+		  _instance = new Config();
+	  }
+	  
+	  return _instance;
   }
-
-  public void Save()
+  
+  public void LoadAllDefaults()
   {
-
-  }
-
-  public void Test()
-  {
-
+	  MySQL.LoadDefaults(); 	
+	  Messages.LoadDefaults(); 
+	  Chat.LoadDefaults(); 
+	  Ping.LoadDefaults();
+	  Econemy.LoadDefaults();
+	  Rank.LoadDefaults();
   }
 }

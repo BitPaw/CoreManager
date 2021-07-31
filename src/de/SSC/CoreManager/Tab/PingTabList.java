@@ -2,131 +2,123 @@ package de.SSC.CoreManager.Tab;
 
 import java.util.Collection;
 
-import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
+
+import de.SSC.CoreManager.BukkitUtility;
+import de.SSC.CoreManager.Logger;
+import de.SSC.CoreManager.Config.Config;
+import de.SSC.CoreManager.DataBase.DataTypes.CMPlayer;
+import de.SSC.CoreManager.DataBase.DataTypes.CMPlayerList;
 
 public class PingTabList extends BukkitRunnable
 {
-	private JavaPlugin plugin;
-			
-	boolean UsePrefix = false;		
-	boolean UseSuffix = true;
+	private static PingTabList _instance;
+	private Config _config;	
+	private Logger _logger;
+	private CMPlayerList _cmPlayerList;	
+	private BukkitUtility _bukkitUtility;	
 	
-	String LocalPingTag = "&7[&f%ping%&7]";
-	
-	String LowPingTag = "&7[&b%ping%&7]";
-	int LowPing = 20;
-	
-	String PingTag = "&7[&a%ping%&7]";	
-	int Ping = 150;
-	
-	String MidPingTag = "&7[&e%ping%&7]";	
-	int MidPing = 500;
-	
-	String HiPingTag = "&7[&c%ping%&7]";
-	int HiPing = 1000;
-	
-	String DeathPingTag = "&7[&4%ping%&7]";	
-	int DeathPing = 1200;
-	
-	
-	  public PingTabList(JavaPlugin plugin)
-	  {
-	    this.plugin = plugin;	    
+	  private  PingTabList()
+	  {	    
+	    _config = Config.Instance();
+	    _logger = Logger.Instance();
+	    _cmPlayerList = CMPlayerList.Instance();	
+	    _bukkitUtility =  BukkitUtility.Instance();
 	  }
+	  
+	
+	  public static PingTabList Instance()
+	  {
+		  if(_instance == null)
+		  {
+			  _instance = new PingTabList();
+			  
+		  }
+		  
+		  return _instance;
+	  }	  
 	  
 	  public void run()
 	  {
-		Collection<?extends Player> players = this.plugin.getServer().getOnlinePlayers();
-		 		
-	    for (Player player : players)
-	    {
-	    	int ping = GetPing(player);
-	    	String currentName = "";	
-	    	String pingText = "";
-	    	String tag = SetColorTag(ping);
-	    	
-	      if (UsePrefix)
-	      {
-	        currentName = player.getName();
-	      } 
-	      else 
-	      {
-	        currentName = player.getDisplayName();
-	      } 
-	      
-	      if (UsePrefix) 
-	      {	    	
-	    	pingText = tag.replace("%ping%", new StringBuilder().append("").append(ping).toString()) + " " + currentName;  
-	    	
-	        player.setPlayerListName(ChatColor.translateAlternateColorCodes('&', pingText));
-	      }
-	      
-	      if (UseSuffix)
-	      {
-	    	pingText = tag.replace("%ping%", new StringBuilder().append("").append(ping).toString());  
-	    	  
-	        player.setPlayerListName(currentName + " " + ChatColor.translateAlternateColorCodes('&', pingText));
-	      }
-	    }
-	  }
+		Collection<? extends Player> players =  _bukkitUtility.GetAllOnlinePlayers();  
+		int ping;
+		int currentPlayers= players.size();
+		String pingTag;	  	 
+        String pingTabSytax;
+		CMPlayer cmPlayer;
+		
+		if(currentPlayers <= 0)
+		{
+			return;
+		}
 
-	  public int GetPing(Player player) 
-	  {
-		  org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer craftPlayer = (org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer) player; 		  
-		  net.minecraft.server.v1_12_R1.EntityPlayer entityPlayer = craftPlayer.getHandle(); 
-		  
-		  int ping = entityPlayer.ping;
-		  
-		  return ping;
-      }
+		try
+		{	
+		    for (Player player : players)
+		    {
+		    	ping = _bukkitUtility.GetPlayerPing(player);
+		    	pingTag = SetColorTag(ping);	 
+	            pingTabSytax = _config.Chat.PrefixSyntax + _config.Chat.PlayerNameSyntax + pingTag;
+		        cmPlayer  = _cmPlayerList.GetPlayer(player);
+		        
+		        pingTabSytax = _config.Chat.SetOPTag(player.isOp(), pingTabSytax); 		    			        
+			    pingTabSytax = _config.Chat.SetNameTag(cmPlayer, pingTabSytax);
+                pingTabSytax = _config.Chat.SetRankTag(cmPlayer.RankGroup, pingTabSytax);
+		      
+				player.setPlayerListName(_logger.TransformToColor(pingTabSytax));
+		    }
+		}
+		catch(Exception exeption)
+		{
+		   _logger.WriteWarning("Ping Tab could not do its work. " + exeption.getMessage());	
+		}
+	} 
 	  
 	  private String SetColorTag(int ping)
 	  {
 		  String pingTag = "";
 		  
-		  	if(ping >= DeathPing)
+		  	if(ping >= _config.Ping.DeathPing)
 	    	{
-		  		pingTag = DeathPingTag;
+		  		pingTag = _config.Ping.DeathPingSyntax;
 	    	}
 	    	else 	    		
 	    	{
-	    		if(ping >= HiPing)
+	    		if(ping >= _config.Ping.HiPing)
 	    		{
-	    			pingTag = HiPingTag;
+	    			pingTag = _config.Ping.HiPingSyntax;
 	    		}
 	    		else
 	    		{
-	    			if(ping >= MidPing)
+	    			if(ping >= _config.Ping.MidPing)
 		    		{
-	    				pingTag = MidPingTag;
+	    				pingTag = _config.Ping.MidPingSyntax;
 		    		}
 	    			else
 	    			{
-	    				if(ping >= Ping)
+	    				if(ping >= _config.Ping.NormalPing)
 	    				{
-	    					pingTag = PingTag;
+	    					pingTag = _config.Ping.NormalPingSyntax;
 	    				}
 	    				else
 	    				{
-	    					if(ping >= LowPing)
+	    					if(ping >= _config.Ping.LowPing)
 	    					{
-	    						pingTag = LowPingTag;
+	    						pingTag = _config.Ping.LowPingSyntax;
 	    					}
 	    					else
 	    					{
-	    						pingTag = LocalPingTag; 
+	    						pingTag = _config.Ping.LocalPingSyntax; 
 	    					}
 	    					
 	    				}
 	    			}
-	    		}
-	    	   
+	    		}	    	   
 	    	}
 		  	
+		  	pingTag = pingTag.replace(_config.Ping.PingTag, String.valueOf(ping));
+		  	
 		  	return pingTag;
-	  }
-	 
+	  } 
 }

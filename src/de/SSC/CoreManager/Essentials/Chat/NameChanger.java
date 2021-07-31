@@ -1,65 +1,67 @@
 package de.SSC.CoreManager.Essentials.Chat;
 
-import de.SSC.CoreManager.Config.Messages;
-import de.SSC.CoreManager.CoreController;
-import de.SSC.CoreManager.Main;
-import de.SSC.CoreManagerPlugins.BukkitHook;
-import de.SSC.CoreManagerPlugins.DataBaseController;
 import org.bukkit.command.CommandSender;
+import org.bukkit.craftbukkit.v1_13_R2.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 
-public class NameChanger
-{	
-	private BukkitHook _bukkitHook ;
-	private DataBaseController _dataBaseController;
+import de.SSC.CoreManager.Logger;
+import de.SSC.CoreManager.Config.Config;
+import de.SSC.CoreManager.DataBase.DatabaseManager;
 
+public class NameChanger 
+{	
+	private DatabaseManager _databaseManager;
+	private Config _config;
+	private Logger _logger;
+	
 	public NameChanger()
 	{
-		CoreController coreController = CoreController.GetInstance();
-
-		_bukkitHook = coreController._BukkitHook;
-		_dataBaseController = coreController._DataBaseController;
-	}	
-
-	public void SetPlayerName(CommandSender sender, String[] parameter)
-	{			  
-		if(_bukkitHook.CheckIfCommandSenderIsPlayer(sender))
+		_config = Config.Instance();
+		_logger = Logger.Instance();
+		_databaseManager = DatabaseManager.Instance();
+	}
+	
+	public boolean CheckCommand(CommandSender sender, String[] args)
+	{	
+		if (!(sender instanceof CraftPlayer))
 		{
-			Messages messages = Main.messages;
-			Player player = (Player)sender;		
-			String name = parameter[0];
-			String customName = "";
+			sender.sendMessage(_config.Messages.ConsoleIO.Error + _config.Messages.ConsoleIO.NotForConsole);
+			return false;
+		}
 
+		if (sender.hasPermission(_config.Messages.Chat.PermissionChangeName))
+		{			
+			Player senderplayer = (Player)sender;
 
-			if(name.isEmpty() || name.equalsIgnoreCase(player.getName()))
+			if (args.length > 0)
 			{
-				customName = player.getName();
+				String out = _config.Messages.ConsoleIO.Info + _config.Messages.Chat.NameChanged +  args[0];
+
+				sender.sendMessage(_logger.TransformToColor(out));
+				senderplayer.setDisplayName(args[0]);
+				SetPlayerName(senderplayer, args[0]);
 			}
 			else
-			{
-				customName = _bukkitHook.TransformColor(name);
-			}	
-			
-			player.setCustomName(customName);
-			_bukkitHook.SendMessage(player, messages.Info + "Name changed to " + customName);
-			_dataBaseController.UpdateCustomName(player);
-		}		
-	}
+			{		 
+				String out = _config.Messages.ConsoleIO.Error + _config.Messages.Chat.NameChangesWrongCommand;
 
-	public void LoadPlayerName(Player player, DataBaseController dataBaseController)
-	{
-		// Defaultname
-		String name = dataBaseController.GetCustomName(player);
+				sender.sendMessage(_logger.TransformToColor(out));
+			}
 
-		if(name == null)
-		{
-			// Sets
-			player.setCustomName(player.getName());
+			return true;
 		}
-		else
-		{
-			// Sets
-			player.setCustomName(_bukkitHook.TransformColor(name));
-		}		
+		sender.sendMessage("Nope, can't do that!");
+		return false;
 	}
+
+	
+	
+	  public void SetPlayerName(Player player, String name)
+	  {	
+		  
+	    player.setCustomName(_logger.TransformToColor(name));
+ 
+	    
+	    _databaseManager.UpdateCustomName(player);
+	  }
 }
