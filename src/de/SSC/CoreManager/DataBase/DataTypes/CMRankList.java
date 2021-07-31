@@ -1,37 +1,39 @@
 package de.SSC.CoreManager.DataBase.DataTypes;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
-import de.SSC.CoreManager.Logger;
+import de.SSC.CoreManager.Config.Config;
 import de.SSC.CoreManager.DataBase.DatabaseManager;
+import de.SSC.CoreManager.Messages.Logger;
+import de.SSC.CoreManager.Messages.MessageType;
+import de.SSC.CoreManager.Messages.Module;
 
 public class CMRankList 
 {
-  private static CMRankList _instance;	
-   private DatabaseManager _databaseManager;
-	private CMRank _defaultRank;	
-	private ArrayList<CMRank> _ranks;
-	private Logger _logger;
+  private static CMRankList _instance;	  
+  private DatabaseManager _databaseManager;	
+  private CMRank _defaultRank;	
+  private ArrayList<CMRank> _ranks;
+  private Logger _logger;
+  private Config _config;	
   
   public static CMRankList Instance()
-  {
-	  if(_instance == null)
-	  {
-		  _instance = new CMRankList();
-	  }
-	  
-	  return _instance;
+  {  
+	  return _instance == null ? new CMRankList() : _instance;
   }
   
   public CMRankList()
   {
+	  _instance = this;
+	  
 	  _ranks = new ArrayList<CMRank>();
 	  _logger = Logger.Instance();
-	  _databaseManager = DatabaseManager.Instance();
-	  
-	  _ranks = _databaseManager.LoadAllRanks();
+	  _config = Config.Instance();
+	  _databaseManager = DatabaseManager.Instance();	  
   }
   
   public CMRank GetRankFromName(String name)
@@ -49,7 +51,9 @@ public class CMRankList
 	  
 	  if(returnRank == null)
 	  {
-		  _logger.WriteInfo("The rank " + name + " was searched but not found.");
+		  String message = "The rank " + name + " was searched but not found.";
+		  
+		  _logger.SendToConsole(Module.RankList, MessageType.Warning, message);
 	  }
 	  	  
 	  return returnRank;
@@ -57,16 +61,35 @@ public class CMRankList
   
   public void ListAllRanks(CommandSender sender)
   {
-	  String message = "\n&6-----[All Ranks]-----\n";	  
+	  String message = _config.Messages.Rank.RankListHeader +  _config.Messages.ConsoleIO.NewLine;	  
+	  String row;
 	  
 	  for(CMRank rank : _ranks)
 	  {
-		  message += "&r  " + rank.RankName + " &6as " + rank.ColorTag + "&r\n";
+		  row = _config.Messages.Rank.RankRow;
+			 	  
+		  row = row.replace(_config.Messages.Rank.RankTag,  rank.RankName);
+		  row = row.replace(_config.Messages.Rank.RankColorTag,  rank.ColorTag);
+		 
+		  message += row + _config.Messages.ConsoleIO.NewLine;
 	  }	  
 	  
-	  message += "&6------------";	
+	  message += _config.Messages.Rank.RankListFooter;	
 	  
-	  sender.sendMessage(_logger.TransformToColor(message)); 
+	  
+	  _logger.SendToSender(Module.RankList, MessageType.None, sender, message);
+  }
+  
+  public List<CMRank> ListAllRanks()
+  {
+	  List<CMRank> ranks = new ArrayList<CMRank>();	  
+	  
+	  for(CMRank rank : _ranks)
+	  {
+		  ranks.add(rank);
+	  }	  
+	  
+	return ranks;
   }
   
   public CMRank GetDefaultRank()
@@ -85,4 +108,25 @@ public class CMRankList
 		  
 	  return _defaultRank;
   }
+
+public void ResetPlayerRank(Player player)
+{
+	CMPlayerList cmPlayerList = CMPlayerList.Instance();
+	CMPlayer cmPlayer = cmPlayerList.GetPlayer(player);
+	
+	ResetPlayerRank(cmPlayer);
+}
+
+public void ResetPlayerRank(CMPlayer player)
+{
+	player.RankGroup = 	GetDefaultRank();
+}
+
+public void ReloadRanks() 
+{
+	_ranks.clear();	
+	_ranks = _databaseManager.LoadAllRanks();
+	
+}
+
 }

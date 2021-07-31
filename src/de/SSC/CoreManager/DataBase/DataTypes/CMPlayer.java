@@ -7,10 +7,11 @@ import java.util.UUID;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import de.SSC.CoreManager.Logger;
 import de.SSC.CoreManager.Config.Config;
+import de.SSC.CoreManager.DataBase.MySQLUtillity;
 import de.SSC.CoreManager.DataBase.Tables.CoreManagerTables;
-import de.SSC.CoreManager.Utility.MySQLUtillity;
+import de.SSC.CoreManager.Messages.Logger;
+import de.SSC.CoreManager.Utility.BukkitUtility;
 
 public class CMPlayer 
 {
@@ -35,18 +36,19 @@ public class CMPlayer
 	public CMPlayer(Player player)
 	{		
 		Config config = Config.Instance();
+		BukkitUtility bukkitUtility = BukkitUtility.Instance();
 		CMRankList rankList = CMRankList.Instance();
 		
 		BukkitPlayer = player;
 		PlayerUUID = player.getUniqueId();
 		IsOP = player.isOp();
-		IsCracked = false;
+		IsCracked = bukkitUtility.IsServerCracked();
 		IsBanned = false;
 		PlayerName = player.getDisplayName();
 		CustomName = player.getCustomName();
 		Money = config.Econemy.StartMoney;
 		RankGroup = rankList.GetDefaultRank();
-		IP = player.getAddress().getHostName(); 
+		IP = bukkitUtility.GetPlayerIP(player); 
 		Registered = Timestamp.valueOf(LocalDateTime.now());
 		LastSeen = Timestamp.valueOf(LocalDateTime.now());
 	}
@@ -75,23 +77,48 @@ public class CMPlayer
 	{
 		String message;
 		Logger logger = Logger.Instance();
+		Config config = Config.Instance();
 		
 		String Yes =  "&aYes";
 		String No = "&cNo";
+		int userID = 0;
 		
-		message = "\n&6---&eUser No&6.&e??&6---";
-		message += "\n&6Name &7: &f" + PlayerName;
-		message += "\n&6aka &7: &f" + (CustomName == "null" ? "&8-" : CustomName);;
-		message += "\n&6Is OP &7: &f" + (IsOP ? Yes : No);
-		message += "\n&6Cracked &7: &f" +(IsCracked ? Yes : No);
-		message += "\n&6Banned &7: &f" +(IsBanned ? Yes : No);
-		message += "\n&6Money &7: &f" + Money;
-		message += "\n&6Rank  &7: &f" +	RankGroup.ColorTag; 
-		message += "\n&6IP &7: &f" +IP;
-		message += "\n&6Registered &7: &f" +Registered ;
-		message += "\n&6Last Seen &7: &f" + LastSeen ;
-		message += "\n&6--------------";
+		message = "\n&6---[&eUser No&6.&e" +userID + "&6]--------------------------------";
+		message += "\n&6 Name &7: &f" + PlayerName;
+		message += "\n&6 aka &7: &f" + (CustomName == "null" ? "&8-" : CustomName);;
+		message += "\n&6 OP &7: &f" + (IsOP ? Yes : No);
+		message += "\n&6 Cracked &7: &f" + (IsCracked ? Yes : No);
+		message += "\n&6 Banned &7: &f" + (IsBanned ? Yes : No);
+		message += "\n&6 Money &7: &f" + Money + " " +  config.Econemy.CurrencySymbol;
+		message += "\n&6 Rank &7: &f" + RankGroup.ColorTag; 
+		message += "\n&6 IP &7: &f" + IP;
+		message += "\n&6 Registered &7: &f" + Registered ;
+		message += "\n&6 Last Seen  &7: &f" + LastSeen ;
+		message += "\n&6---------------------------------------------";
 		
 		sender.sendMessage(logger.TransformToColor(message));
+	}
+
+	public void SetDataForServerSide() 
+	{
+		BukkitPlayer.setOp(IsOP);
+		
+		if(CustomName == null)
+		{
+			BukkitPlayer.setDisplayName(BukkitPlayer.getName());
+			BukkitPlayer.setCustomName(BukkitPlayer.getName());
+		}
+		else
+		{
+			BukkitPlayer.setDisplayName(CustomName);
+			BukkitPlayer.setCustomName(CustomName);
+		}	
+		
+		if(IsBanned)
+		{
+			CMRankList rankList = CMRankList.Instance();
+			
+			RankGroup = rankList.GetRankFromName("Ban");
+		}		
 	}
 }

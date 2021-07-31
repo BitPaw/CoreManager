@@ -1,12 +1,18 @@
 name: CoreManager
-version: 0.23
-description:
+version: 0.3.0
+description: Manages many elements imgame
 load: POSTWORLD
 author: BitPaw
 website:
-main: de.SSC.CoreManager.Main
+depend:
+main: de.SSC.Main
 prefix: CoreManager
 commands:
+  whoami:
+    description: Shows personal Data
+    aliases: [me, whoisme]
+    permission: CoreManager.WhoAmI
+    usage: /WhoAmI
   rain:
     description: Toggles the rain.
     aliases: [rain, RAIN, Rain]
@@ -14,11 +20,129 @@ commands:
     usage: /rain
   day:
     description: Makes the day.
-   #aliases: [day, Day, DAY]
-   #permission: CoreManager.weather
-    # usage: /day
+    aliases: [day, Day, DAY]
+    permission: CoreManager.weather
+    usage: /day
+  night:
+    description: Makes Night.
+    aliases: [night]
+    permission: CoreManager.weather
+    usage: /night
+  exit:
+    description: Shutdowns the Server
+    permission: CoreManager.stop
+    usage: /exit
+  speed:
+    description: Sets your Speed
+    permission: CoreManager.speed
+    usage: /speed <integer>
+  heal:
+    description: Heals you / Restores Hunger and Removes Buffs and debuffs
+    permission: CoreManager.heal
+    usage: /heal
+  home:
+    description: Shutdowns the Server
+    permission: CoreManager.stop
+    usage: /exit
   changename:
      description: Changes the player name.
-     aliases: [changename, CHANGENAME, cn, CN]
+     aliases: [cn, nick]
      permission: CoreManager.changename
-     usage: /changename [player]
+     usage: /changename <player>
+  warp:
+     description: Lists all warps
+     aliases: [w, warps]
+     permission: CoreManager.warps
+     usage: /warps    
+  warps:
+     description: Warps to a location
+     aliases: [tp, warp]
+     permission: CoreManager.warp
+     usage: /warp <WarpName>
+  setwarp:
+     description: Sets a Warp point
+     aliases: [setwarp, SETWARP, SW]
+     permission: CoreManager.setwarp
+     usage: /setwarp <Name>
+  delwarp:
+     description: Sets a Warp point
+     aliases: [delwarp, dw, deletewarp]
+     permission: CoreManager.setwarp
+     usage: /delwarp <Name>
+  spawn:
+     description: Teleport to the spawn
+     aliases: [spawn,s]
+     permission: CoreManager.spawn
+     usage: /spawn
+  setspawn:
+     description: Sets the spawn point of this world
+     aliases: [ss, setspawn, sspawn]
+     permission: CoreManager.setwarp
+     usage: /setspawn
+  deleteworld:
+     description: Deletes a world
+     aliases: [dw]
+     permission: CoreManager.world
+     usage: /setspawn
+  createworld:
+     description: Creates a new World
+     aliases: [cw]
+     permission: CoreManager.world
+     usage: /setspawn
+  listworlds:
+     description: List all loaded worlds
+     aliases: [lw]
+     permission: CoreManager.world
+     usage: /listworlds   
+  multiverse:
+     description: Multiverse
+     aliases: [mv]
+     permission: CoreManager.world
+     usage: /multiverse 
+  teleporttoworld:
+     description: Teleport to another world
+     aliases: [tpw]
+     permission: CoreManager.world
+     usage: /teleporttoworld      
+  changerank:
+     description: Changes your Rank
+     aliases: [cr]
+     permission: CoreManager.ChangeRank
+     usage: /ChangeRank <Rank>       
+  deleterank:
+     description: Changes your Rank
+     aliases: [dr, rm, removerank]
+     permission: CoreManager.DeleteRank
+     usage: /DeleteRank
+  teleport:
+    description: Teleports you to a Player
+    aliases: [tp]
+    permission: CoreManager.Teleport
+    usage: /Teleport <Player> or /tp <Player>
+  gm:
+     description: Changes your Gamemode
+     permission: CoreManager.GameMode
+     usage: /gm     
+  editsign:
+     description: A editable sign related command
+     usage: /editsign <subcommand>
+     aliases: [es]
+  sql:
+    description: SQL commands for the Database
+    usage: /sql <command>
+    permission: CoreManager.SQL
+  changeskin:
+    description: Changes your skin
+    aliases: [cs]
+    usage: /sql <command>
+    permission: CoreManager.ChangeSkin
+  changeplayertag:
+    description: Changes your PlayerTag
+    aliases: [cs]
+    usage: /changeplayertag <command>
+    permission: CoreManager.PlayerTag
+  listranks:
+    description: Shows all ranks
+    aliases: [lr]
+    usage: /ListRanks
+    permission: CoreManager.ListRanks

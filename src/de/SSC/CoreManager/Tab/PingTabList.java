@@ -5,11 +5,13 @@ import java.util.Collection;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import de.SSC.CoreManager.BukkitUtility;
-import de.SSC.CoreManager.Logger;
 import de.SSC.CoreManager.Config.Config;
 import de.SSC.CoreManager.DataBase.DataTypes.CMPlayer;
 import de.SSC.CoreManager.DataBase.DataTypes.CMPlayerList;
+import de.SSC.CoreManager.Messages.Logger;
+import de.SSC.CoreManager.Messages.MessageType;
+import de.SSC.CoreManager.Messages.Module;
+import de.SSC.CoreManager.Utility.BukkitUtility;
 
 public class PingTabList extends BukkitRunnable
 {
@@ -25,6 +27,8 @@ public class PingTabList extends BukkitRunnable
 	    _logger = Logger.Instance();
 	    _cmPlayerList = CMPlayerList.Instance();	
 	    _bukkitUtility =  BukkitUtility.Instance();
+	    
+		_logger.SendToConsole(Module.PingTab, MessageType.Online, _config.Messages.ConsoleIO.On);
 	  }
 	  
 	
@@ -71,7 +75,9 @@ public class PingTabList extends BukkitRunnable
 		}
 		catch(Exception exeption)
 		{
-		   _logger.WriteWarning("Ping Tab could not do its work. " + exeption.getMessage());	
+			String message = "Ping Tab could not do its work. " + exeption.getMessage();
+			
+		   _logger.SendToConsole(Module.PingTab, MessageType.Error, message);
 		}
 	} 
 	  
