@@ -11,9 +11,12 @@ Done:
 Next:
   fix heads
   Permissions
-  Command - Clear inventory
   Essentials Compass
   Citicens
+  
+  Kick everyone at command "exit"
+  
+  ItemFrame has no permission detection.
 
 Later:
   Digital clock    

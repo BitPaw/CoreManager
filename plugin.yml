@@ -1,14 +1,32 @@
 name: CoreManager
-version: 0.3.4
+version: 0.4.1
 description: Manages many elements imgame
 load: POSTWORLD
 author: BitPaw
 website:
-depend:
 api-version: 1.13
 main: de.SSC.Main
 prefix: CoreManager
 commands:
+  listplayer:
+    description: List all registered players.
+    aliases: [lp]
+    permission: CoreManager.Player.List
+    usage: /ListPlayer 
+  npc:
+    description: Spawn NPCs
+    permission: CoreManager.NPC
+    usage: /npc 
+  digitalclock:
+    description: A digital clock in minecraft
+    aliases: [dc]
+    permission: CoreManager.DigitalClock
+    usage: /digitalclock 
+  clearinventory:
+    description: Clears your Inventory
+    aliases: [ci]
+    permission: CoreManager.ClearInventory
+    usage: /clearinventory 
   hat:
     description: Puts a block as hat
     permission: CoreManager.Hat
@@ -60,38 +78,39 @@ commands:
     permission: CoreManager.heal
     usage: /heal
   home:
-    description: Shutdowns the Server
-    permission: CoreManager.stop
-    usage: /exit
+    description: Teleports you home
+    aliases: [h]
+    permission: CoreManager.Home
+    usage: /home
   changename:
      description: Changes the player name.
-     aliases: [cn, nick]
-     permission: CoreManager.changename
+     aliases: [cn]
+     permission: CoreManager.ChangeName
      usage: /changename <player>
   warp:
      description: Lists all warps
      aliases: [w, warps]
-     permission: CoreManager.warps
+     permission: CoreManager.Warps
      usage: /warps    
   warps:
      description: Warps to a location
      aliases: [tp, warp]
-     permission: CoreManager.warp
+     permission: CoreManager.Warp
      usage: /warp <WarpName>
   setwarp:
      description: Sets a Warp point
-     aliases: [setwarp, SETWARP, SW]
-     permission: CoreManager.setwarp
+     aliases: [setwarp, SW]
+     permission: CoreManager.SetWarp
      usage: /setwarp <Name>
   delwarp:
      description: Sets a Warp point
      aliases: [delwarp, dw, deletewarp]
-     permission: CoreManager.setwarp
+     permission: CoreManager.DelWarp
      usage: /delwarp <Name>
   spawn:
      description: Teleport to the spawn
      aliases: [spawn,s]
-     permission: CoreManager.spawn
+     permission: CoreManager.Spawn
      usage: /spawn
   worldspawn:
      description: Teleport to the world spawn
@@ -172,7 +191,7 @@ commands:
     usage: /changeplayertag <command>
     permission: CoreManager.PlayerTag
   lag:
-    description: Does stuuf to prevent lag.
+    description: Does stuff to prevent lag.
     usage: /lag
     permission: CoreManager.Lag 
   setlocation:
@@ -185,3 +204,18 @@ commands:
     aliases: [lr]
     usage: /ListRanks
     permission: CoreManager.ListRanks
+  systeminfo:
+    description: Shows all ranks
+    aliases: [sysinfo, sysi]
+    usage: /systeminfo
+    permission: CoreManager.SystemInfo
+  money:
+    description: Shows your current balance
+    aliases: [m]
+    usage: /money
+    permission: CoreManager.Money.Show
+  pay:
+    description: Shows your current balance
+    aliases: [p]
+    usage: /pay <amount> <target>
+    permission: CoreManager.Money.Transfer

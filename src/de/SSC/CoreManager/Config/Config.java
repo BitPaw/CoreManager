@@ -1,41 +1,37 @@
 package de.SSC.CoreManager.Config;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
 
-import com.esotericsoftware.yamlbeans.YamlException;
-import com.esotericsoftware.yamlbeans.YamlReader;
-import com.esotericsoftware.yamlbeans.YamlWriter;
+import de.SSC.CoreManager.Chat.ChatConfig;
+import de.SSC.CoreManager.Chat.Logger;
+import de.SSC.CoreManager.Chat.MessageType;
+import de.SSC.CoreManager.Chat.MessagesConfig;
+import de.SSC.CoreManager.Chat.Module;
+import de.SSC.CoreManager.DataBase.DataBaseConfig;
+import de.SSC.CoreManager.Economy.EconemyConfig;
+import de.SSC.CoreManager.Rank.RankConfig;
+import de.SSC.CoreManager.Sign.SignEditConfig;
+import de.SSC.CoreManager.System.BaseSystem;
+import de.SSC.CoreManager.System.ISystem;
+import de.SSC.CoreManager.System.SystemPriority;
+import de.SSC.CoreManager.System.SystemState;
+import de.SSC.CoreManager.Tab.PingConfig;
+import de.SSC.CoreManager.World.WorldsConfig;
+import de.SSC.Timber.TimberConfig;
 
-import de.SSC.CoreManager.Config.ConfigFiles.ChatConfig;
-import de.SSC.CoreManager.Config.ConfigFiles.EconemyConfig;
-import de.SSC.CoreManager.Config.ConfigFiles.MessagesConfig;
-import de.SSC.CoreManager.Config.ConfigFiles.MySQLConfig;
-import de.SSC.CoreManager.Config.ConfigFiles.PingConfig;
-import de.SSC.CoreManager.Config.ConfigFiles.RankConfig;
-import de.SSC.CoreManager.Config.ConfigFiles.SignEditConfig;
-import de.SSC.CoreManager.Config.ConfigFiles.TimberConfig;
-import de.SSC.CoreManager.Config.ConfigFiles.WorldsConfig;
-import de.SSC.CoreManager.Systems.Chat.Logger;
-import de.SSC.CoreManager.Systems.Chat.MessageType;
-import de.SSC.CoreManager.Systems.Chat.Module;
-
-public class Config 
+public class Config extends BaseSystem implements ISystem
 {
 	private static Config _instance;
 	private Logger _logger;
-	private final String _filePath = "plugins\\CoreManager\\Config.yml";
-	private final String _fileHeaderName = "Config";
+	private final String _filePath = "plugins\\CoreManager\\CoreManagerConfig.yml";
+	//private final String _fileHeaderName = "Config";
 	private final String _directoryPath = "plugins\\CoreManager\\";
 	//private final String _fileName =  "CoreManager_Configuration.yml";
 	
 	public ChatConfig Chat;
 	public PingConfig Ping;
 	public MessagesConfig Messages;
-	public MySQLConfig MySQL;
+	public DataBaseConfig DataBase;
 	public EconemyConfig Econemy;
 	public RankConfig Rank;
 	public WorldsConfig Worlds; 
@@ -46,9 +42,10 @@ public class Config
  
 	private Config()  
 	{	 
+		super(Module.Config, SystemState.Active, SystemPriority.Essential);
 		_instance = this;  
 	 
-		MySQL = new MySQLConfig();		 
+		DataBase = new DataBaseConfig();		 
 		Messages = new MessagesConfig();	 
 		Chat = new ChatConfig();	
 		Ping = new PingConfig();	
@@ -58,7 +55,8 @@ public class Config
 		SignEdit = new SignEditConfig();	
 		Timber = new TimberConfig();
 		
-		LoadAllDefaults();	  
+		LoadReferences();
+		
 	  //_logger = Logger.Instance();
 	  
 	 // _logger.SendToConsole(Module.Logger, MessageType.Online, Messages.ConsoleIO.On);  
@@ -75,9 +73,10 @@ public class Config
 	  return _instance == null ?  new Config() : _instance;
   }
   
-  public void LoadAllDefaults()
+  @Override
+  public void LoadReferences() 
   {
-	  MySQL.LoadDefaults(); 	
+	  DataBase.LoadDefaults(); 	
 	  Messages.LoadDefaults(); 
 	  Chat.LoadDefaults(); 
 	  Ping.LoadDefaults();
@@ -85,9 +84,9 @@ public class Config
 	  Rank.LoadDefaults();
 	  Worlds.LoadDefaults();
 	  SignEdit.LoadDefaults();
-	  Timber.LoadDefaults();
+	  Timber.LoadDefaults();  	
   }
-
+  
   private boolean DoesConfigFileExists()
   {
 	  boolean fileExists;	
@@ -136,6 +135,7 @@ public class Config
   
   private void WriteFile()
   {
+	  /*
 	  String message;
 	  YamlWriter writer; 	
 	  FileWriter fileWriter;
@@ -168,10 +168,12 @@ public class Config
 		  
 		  _logger.SendToConsole(Module.Config, MessageType.Info, message);
 	  }
+	  */
   }
   
   public void Load()
   {
+	  /*
 	  String message;
 	  YamlReader reader;
 	  _logger = Logger.Instance();	  
@@ -203,6 +205,7 @@ public class Config
 		  
 		  _logger.SendToConsole(Module.Config, MessageType.Info, message);
 	  }
+	  */
   }
   
   public void Save()

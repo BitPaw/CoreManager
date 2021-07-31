@@ -1,14 +1,20 @@
 package de.SSC.CoreManager;
 
+import java.util.UUID;
+
 import org.bukkit.Bukkit;
+import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.block.SignChangeEvent;
+import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
@@ -16,6 +22,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.event.player.PlayerToggleFlightEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.event.server.ServerListPingEvent;
@@ -23,44 +30,76 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import de.SSC.CoreManagerCommand;
+import de.SSC.CoreRunnable;
 import de.SSC.Main;
-import de.SSC.CoreManager.Addons.DoubleJump;
-import de.SSC.CoreManager.Addons.FireWork;
-import de.SSC.CoreManager.Addons.DigitalClock.DigitalClockSystem;
-import de.SSC.CoreManager.Addons.DropHead.DropHeadSystem;
-import de.SSC.CoreManager.Addons.MobHealth.MobHealth;
-import de.SSC.CoreManager.Addons.Timber.Timber;
+import de.SSC.BukkitAPI.BukkitAPISystem;
+import de.SSC.Chairs.ChairsSystem;
+import de.SSC.CoreManager.Chat.ChatSystem;
+import de.SSC.CoreManager.Chat.Logger;
+import de.SSC.CoreManager.Chat.MessageTags;
+import de.SSC.CoreManager.Chat.MessageType;
+import de.SSC.CoreManager.Chat.Module;
 import de.SSC.CoreManager.Config.Config;
-import de.SSC.CoreManager.Systems.Chat.ChatSystem;
-import de.SSC.CoreManager.Systems.Chat.Logger;
-import de.SSC.CoreManager.Systems.Chat.MessageTags;
-import de.SSC.CoreManager.Systems.Chat.MessageType;
-import de.SSC.CoreManager.Systems.Chat.Module;
-import de.SSC.CoreManager.Systems.DataBase.DataBaseSystem;
-import de.SSC.CoreManager.Systems.NameTag.NameTagSystem;
-import de.SSC.CoreManager.Systems.Permission.PermissionSystem;
-import de.SSC.CoreManager.Systems.Player.CMPlayer;
-import de.SSC.CoreManager.Systems.Player.PlayerSystem;
-import de.SSC.CoreManager.Systems.Player.RedundantGameModeChangeException;
-import de.SSC.CoreManager.Systems.Rank.RankNotFoundException;
-import de.SSC.CoreManager.Systems.Rank.RankSystem;
-import de.SSC.CoreManager.Systems.Rank.RedundantRankChangeException;
-import de.SSC.CoreManager.Systems.Region.RegionSystem;
-import de.SSC.CoreManager.Systems.Sign.SignEditSystem;
-import de.SSC.CoreManager.Systems.Tab.TabSystem;
-import de.SSC.CoreManager.Systems.Warp.WarpSystem;
-import de.SSC.CoreManager.Systems.World.WorldSystem;
-import de.SSC.CoreManager.Utility.BukkitUtility;
-import de.SSC.CoreManager.Utility.TooFewParameterException;
-import de.SSC.CoreManager.Utility.TooManyParameterException;
+import de.SSC.CoreManager.DataBase.DataBaseSystem;
+import de.SSC.CoreManager.Economy.EconemySystem;
+import de.SSC.CoreManager.Economy.Exception.InvalidAmountParameterException;
+import de.SSC.CoreManager.Economy.Exception.NegativeAmountException;
+import de.SSC.CoreManager.Economy.Exception.NotEnoghMoneyException;
+import de.SSC.CoreManager.Economy.Exception.NullAmountException;
+import de.SSC.CoreManager.Economy.Exception.RedundantTransactionException;
+import de.SSC.CoreManager.Economy.Exception.TooMuchMoneyException;
+import de.SSC.CoreManager.NameTag.NameTagSystem;
+import de.SSC.CoreManager.Permission.PermissionSystem;
+import de.SSC.CoreManager.Player.PlayerSystem;
+import de.SSC.CoreManager.Player.Exception.InvalidGameModeException;
+import de.SSC.CoreManager.Player.Exception.InvalidPlayerNameException;
+import de.SSC.CoreManager.Player.Exception.InvalidPlayerUUID;
+import de.SSC.CoreManager.Player.Exception.PlayerDoesNotExistException;
+import de.SSC.CoreManager.Player.Exception.PlayerNotFacingDirectionException;
+import de.SSC.CoreManager.Player.Exception.PlayerNotFoundException;
+import de.SSC.CoreManager.Player.Exception.PlayerOfflineException;
+import de.SSC.CoreManager.Player.Exception.RedundantGameModeChangeException;
+import de.SSC.CoreManager.Rank.RankSystem;
+import de.SSC.CoreManager.Rank.Exception.RankNotFoundException;
+import de.SSC.CoreManager.Rank.Exception.RedundantRankChangeException;
+import de.SSC.CoreManager.Region.CMRegion;
+import de.SSC.CoreManager.Region.RegionSystem;
+import de.SSC.CoreManager.Sign.SignEditSystem;
+import de.SSC.CoreManager.Skin.SkinSystem;
+import de.SSC.CoreManager.Skin.Exception.OfflineSkinLoadException;
+import de.SSC.CoreManager.Skin.Exception.SkinLoadException;
+import de.SSC.CoreManager.Sound.SoundSystem;
+import de.SSC.CoreManager.System.CoreSystem;
+import de.SSC.CoreManager.System.SystemList;
+import de.SSC.CoreManager.System.Exception.NotForConsoleException;
+import de.SSC.CoreManager.System.Exception.SystemNotActiveException;
+import de.SSC.CoreManager.System.Exception.TooFewParameterException;
+import de.SSC.CoreManager.System.Exception.TooManyParameterException;
+import de.SSC.CoreManager.Tab.TabSystem;
+import de.SSC.CoreManager.Teleport.TeleportSystem;
+import de.SSC.CoreManager.Warp.Warp;
+import de.SSC.CoreManager.Warp.WarpSystem;
+import de.SSC.CoreManager.Warp.Exception.WarpNotFoundException;
+import de.SSC.CoreManager.World.WorldSystem;
+import de.SSC.CoreManager.World.Exception.InvalidWorldNameException;
+import de.SSC.DigitalClock.DigitalClockSystem;
+import de.SSC.DoubleJump.DoubleJump;
+import de.SSC.DropHead.DropHeadSystem;
+import de.SSC.FireWork.FireWork;
+import de.SSC.MobHealth.MobHealth;
+import de.SSC.NPC.NPCSystem;
+import de.SSC.Timber.Timber;
 
 public class CoreListener implements Listener
 {
 	private static CoreListener _instance;
 	private PluginManager _pluginManager;
-	private JavaPlugin _javaPlugin;
+	//private JavaPlugin _javaPlugin;
 	
-	private BukkitUtility _bukkitUtility;
+	private SystemList _systemList;
+	
+	private BukkitAPISystem _bukkitAPISystem;
 	private Logger _logger;
 	private Config _config;
 	private DataBaseSystem _databaseManager;
@@ -68,6 +107,7 @@ public class CoreListener implements Listener
 	private CoreSystem _coreSystem;
 	private NameTagSystem _nameTagSystem;
 	private MessageTags _messageTags;
+	private SoundSystem _soundSystem;
 	private PermissionSystem _permissionSystem;
 	private PlayerSystem _playerSystem;
 	private RankSystem _rankSystem;
@@ -75,8 +115,11 @@ public class CoreListener implements Listener
 	private SignEditSystem _signEditSystem;
 	private TabSystem _tabSystem;
 	private WarpSystem _warpSystem;
-	private WorldSystem _worldSystem;	
+	private WorldSystem _worldSystem;
+	private TeleportSystem _teleportSystem;
 	private FireWork _fireWork;
+	private EconemySystem _econemySystem;
+	private SkinSystem _skinSystem;
 	
 	
 	private Timber _timber;
@@ -84,10 +127,16 @@ public class CoreListener implements Listener
 	private DoubleJump _doubleJump;
 	private DropHeadSystem _dropHeadSystem;
 	private DigitalClockSystem _digitalClockSystem;
+	private ChairsSystem _chairsSystem;
+	private NPCSystem _npcSystem;
+	
+	private CoreRunnable _coreRunnable;
 	
 	private CoreListener()
 	{
-		_instance = this;
+		_instance = this;		
+		
+		_systemList = new SystemList();
 	}
 
 	public static CoreListener Instance()
@@ -95,375 +144,385 @@ public class CoreListener implements Listener
 		return _instance == null ? new CoreListener() : _instance;
 	}
 
-	public void LoadAllInstances()
-	{
-		_logger = Logger.Instance();
+	private void LoadAllInstances()
+	{		
+		//---[Core]------------------------------------------------------------------
 		_config = Config.Instance();
-		_bukkitUtility = BukkitUtility.Instance();
+		_systemList.Add(_config);			
+		
+		_logger = Logger.Instance();
+		_systemList.Add(_logger);	
+		
+		_bukkitAPISystem = BukkitAPISystem.Instance();
+		_systemList.Add(_bukkitAPISystem);	
+		
 		_databaseManager = DataBaseSystem.Instance();
-
+		_systemList.Add(_databaseManager);	
+		
 		_chatSystem = ChatSystem.Instance();
+		_systemList.Add(_chatSystem);	
+		
 		_coreSystem = CoreSystem.Instance();
-		_nameTagSystem = NameTagSystem.Instance();
-		_messageTags = MessageTags.Instance();
-		_permissionSystem = PermissionSystem.Instance();
-		_playerSystem = PlayerSystem.Instance();
-		_rankSystem = RankSystem.Instance();
-		_regionSystem = RegionSystem.Instance();
-		_signEditSystem = SignEditSystem.Instance();
-		_tabSystem = TabSystem.Instance();
-		_warpSystem = WarpSystem.Instance();
+		_systemList.Add(_coreSystem);	
+		
+		_coreRunnable = CoreRunnable.Instance();
+		_systemList.Add(_coreRunnable);	
+				
+		//---[Important]------------------------------------------------------------------
+				
 		_worldSystem = WorldSystem.Instance();
-
-		_fireWork = FireWork.Instance();
+		_systemList.Add(_worldSystem);
+		
+		_warpSystem = WarpSystem.Instance();
+		_systemList.Add(_warpSystem);
+		
+		_rankSystem = RankSystem.Instance();
+		_systemList.Add(_rankSystem);
+		
+		_permissionSystem = PermissionSystem.Instance();
+		_systemList.Add(_permissionSystem);
+		
+		_regionSystem = RegionSystem.Instance();
+		_systemList.Add(_regionSystem);
+				
+		_econemySystem = EconemySystem.Instance();
+		_systemList.Add(_econemySystem);
+		
+		_playerSystem = PlayerSystem.Instance();
+		_systemList.Add(_playerSystem);
+		
+		//---[Extra]------------------------------------------------------------------
+		
+		_messageTags = MessageTags.Instance();
+		_systemList.Add(_messageTags);
+		
+		_nameTagSystem = NameTagSystem.Instance();
+		_systemList.Add(_nameTagSystem);
+		
+		_soundSystem = SoundSystem.Instance();		
+		_systemList.Add(_soundSystem);
+		
+		_signEditSystem = SignEditSystem.Instance();
+		_systemList.Add(_signEditSystem);
+		
+		_tabSystem = TabSystem.Instance();	
+		_systemList.Add(_tabSystem);
+		
+		_teleportSystem = TeleportSystem.Instance();
+		_systemList.Add(_teleportSystem);
+		
+		_fireWork = FireWork.Instance();		
+		_systemList.Add(_fireWork);
 		
 		_timber = Timber.Instance();
-		_doubleJump = DoubleJump.Instance();
-		_mobHealth = MobHealth.Instance();		
-		_dropHeadSystem = DropHeadSystem.Instance();
+		_systemList.Add(_timber);
 		
-		_digitalClockSystem = new DigitalClockSystem();
+		_doubleJump = DoubleJump.Instance();
+		_systemList.Add(_doubleJump);
+		
+		_mobHealth = MobHealth.Instance();		
+		_systemList.Add(_mobHealth);
+		
+		_dropHeadSystem = DropHeadSystem.Instance();
+		_systemList.Add(_dropHeadSystem);
+		
+		_digitalClockSystem = DigitalClockSystem.Instance();
+		_systemList.Add(_digitalClockSystem);
+		
+		_chairsSystem = ChairsSystem.Instance();
+		_systemList.Add(_chairsSystem);	
+		
+		_npcSystem = NPCSystem.Instance();
+		_systemList.Add(_npcSystem);
+		
+		_skinSystem = SkinSystem.Instance();
+		_systemList.Add(_skinSystem);
 	}
 
-	public void LoadAllReferences()
-	{
-		_worldSystem.LoadReferences();
+	public void Start()
+	{			
+		// Create
+		LoadAllInstances();
+		
+		// Link
+		_systemList.LoadAllReferences();   		
+	
+		// Execute		
+		_systemList.ReloadAll(true);	
+		
+		//_config.Save();		
 	}
+	
+	public void Stop()
+	{
+		_config.Save();	
+	}	
 
 	public void RegisterAllEvents(JavaPlugin plugin)
 	{
-		_pluginManager = _bukkitUtility.GetPluginManager();
-
+		_pluginManager = Bukkit.getPluginManager();	
+		_pluginManager.registerEvents(this, plugin);		 
 	
-		_pluginManager.registerEvents(this, plugin);
-		 
-		_digitalClockSystem.RegisterTasks(plugin, Bukkit.getServer());
+		// runTaskTimerAsynchronously 60
 		
-
-		// Check if this task is already running
-		try
-		{
-			_tabSystem.runTaskTimerAsynchronously(plugin, 0, _config.Ping.PingTabListDelayMs);
-		}
-		catch(IllegalStateException illegalStateException)
-		{
-			_logger.SendToConsole(Module.System, MessageType.Error, "Could not Register task for TabSystem. Is it already running?\n" + illegalStateException.getMessage());
-		}		
+		_coreRunnable.RegisterRunnable(_digitalClockSystem);
+		_coreRunnable.RegisterRunnable(_tabSystem);
+		_coreRunnable.RegisterRunnable(_npcSystem);
+		
+		_coreRunnable.runTaskTimer(plugin, 0, 1000);	
 
 		_signEditSystem.SetJavaPlugin(plugin);
 		_signEditSystem.setReEditSignMethod();
-
-		_nameTagSystem.Init();
+		
+		_nameTagSystem.SetupScoreBoard();
 	}
 
 	public void CancelAllEvents()
 	{
-		_tabSystem.cancel();
-	}
-	
-	public void LoadAllData()
-	{
-		_worldSystem.ReloadWorlds();
-		_rankSystem.ReloadRanks();
-		_warpSystem.ReloadWarps();
-		_regionSystem.ReloadRegions();
-		_permissionSystem.ReloadPermissions();
-
-		_config.Save();		
-		
-		_playerSystem.CheckForUndetectedPlayers();
+		_coreRunnable.cancel();
 	}
 
 	public void ListEverything()
 	{
 		CommandSender sender = Bukkit.getConsoleSender();
 
-		_coreSystem.GetSystemInfos(sender);
-		
-		_worldSystem.ListWorlds(sender);
-		_rankSystem.ListAllRanks(sender);
-		_warpSystem.ListAllWarps(sender);
-		_regionSystem.ListAllRegions(sender);
-		_permissionSystem.ListPermissions(sender);
+		_systemList.GetStatusFromAll(sender);		
+		_systemList.ListAll(sender);				
 	}
 
-	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args)
+	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) 
 	{
 		boolean successful = true;
-		String command = commandLabel.toLowerCase();
-
+		
 		try
 		{
-			switch (command)
+			final CoreManagerCommand command =  CoreManagerCommand.valueOf(commandLabel.toLowerCase());
+			
+			switch(command)
 			{
-			case "hat":
-				
+			case cn:
+			case changename:
+				_playerSystem.ChangeNameCommand(sender, args);
+				_nameTagSystem.UpdatePlayerTag(sender);
 				break;
 				
-			case "head":
-				_dropHeadSystem.Command.GetHead(sender, args);
+			case changeplayertag:
 				break;
 				
-			case "creload":
+			case cr:
+			case changerank:
+				_rankSystem.ChangeRankCommand(sender, args);
+				_nameTagSystem.UpdatePlayerTag(sender);
+				break;
+				
+			case cs:
+			case changeskin:
+				_playerSystem.ChangeSkin(sender, args[0]);
+				break;
+				
+			case cc:
+			case clearchat:
+				_chatSystem.ClearChat(sender);
+				break;
+				
+			case ci:
+			case clearinventory:
+				_playerSystem.ClearInventory(sender, args);
+				break;
+				
+			case cw:
+			case createworld:
+				_worldSystem.CreateNewWorldCommand(sender, args);
+				break;
+				
+			case creload:
 				CancelAllEvents();
 				
-				_bukkitUtility.ReloadPlugin(_javaPlugin);
+				_systemList.ReloadAll(false);
+				//_bukkitAPISystem.ReloadPlugin(_javaPlugin);
 				break;
-			
-				// Default
-			case "lag":
+				
+			case day:
+				_bukkitAPISystem.Weather.Day();
+				break;
+				
+			case dr:
+			case deleterank:
+				_rankSystem.ResetPlayerRank(sender, args);
+				_nameTagSystem.UpdatePlayerTag(sender);
+				break;
+				
+			case dw:
+			case deleteworld:
+				_worldSystem.DeleteWorldCommand(sender, args);
+				break;
+				
+			case delwarp:
+				_warpSystem.DeleteWarp(sender, args);
+				break;
+				
+			case dc:
+			case digitalclock:
+				_digitalClockSystem.DigitalClockCommand(sender, args);
+				break;
+				
+			case exit:
+				_bukkitAPISystem.Server.ShutdownServer();
+				break;
+				
+			case gm:
+				_playerSystem.ChangeGameMode(sender, args);
+				break;
+				
+			case hat:
+				_playerSystem.PutItemOnHead(sender);	
+				break;
+				
+			case head:
+				_dropHeadSystem.GetHeadCommand(sender, args);
+				break;
+				
+			case heal:
+				_playerSystem.Heal(sender);
+				break;
+				
+			case home:
+				_teleportSystem.TeleportHome(sender, args);
+				break;
+				
+			case lag:
 				_coreSystem.CallGarbageCollector();
 				_logger.SendToSender(Module.System, MessageType.Info, sender, "System cleaned.");
 				break;
 				
-			case "me":
-			case "whoisme":
-			case "whoami":
-				if (_bukkitUtility.PlayerUtility.IsSenderPlayer(sender))
-				{
-					Player player = (Player)sender;
-					CMPlayer cmplayer = _playerSystem.GetPlayer(player);
-					cmplayer.GetPlayerInfo(sender);
-				}
-				else
-				{
-					_logger.SendToSender(Module.System, MessageType.Warning, sender, _config.Messages.ConsoleIO.NotForConsole);
-				}
-				break;
-
-			case "day":
-				_bukkitUtility.WeatherUtility.Day();
-				break;
-
-			case "night":
-				_bukkitUtility.WeatherUtility.Night();
-				break;
-
-			case "rain":
-				_bukkitUtility.WeatherUtility.Rain();
-				break;
-
-			case "exit":
-				_bukkitUtility.ShutdownServer();
-				break;
-
-			case "gm":
-				_playerSystem.ChangeGameMode(sender, args);
-				break;
-
-			case "heal":
-				_playerSystem.Heal(sender);
-				break;
-				
-			case "pc":
-			case "printcolors":
-				_bukkitUtility.PrintColors(sender);
-				break;			
-				
-			case "clearchat":
-			case "cc":
-				_chatSystem.ClearChat(sender);
-				break;
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-
-				// Teleport
-			case "home":
-				_warpSystem.TeleportHome(sender, args);
-				break;
-				
-			case "w":
-			case "warps":
-				_warpSystem.ListAllWarps(sender);
-				break;
-
-			case "warp":
-				_warpSystem.Warp(sender, args);
-				break;
-
-			case "setwarp":
-				_warpSystem.SetWarp(sender, args);
-				break;
-
-			case "delwarp":
-				_warpSystem.DeleteWarp(sender, args);
-				break;
-
-			case "spawn":
-				_warpSystem.TeleportToWorldSpawn(sender);
-				break;
-
-			case "setspawn":
-				_warpSystem.SetSpawn(sender);
-				break;
-				
-			case "ws":
-			case "wspawn":
-			case "worldspawn":
-				_warpSystem.TeleportToWorldSpawn(sender);
-				break;
-						
-			case "tp":
-			case "teleport":
-				_warpSystem.TeleportToPlayer(sender, args);
-				break;
-				
-			case "tpl":
-			case "teleporttolocation":
-				_warpSystem.TeleportToSpecificLocation(sender, args);
-				break;
-
-			case "tpw":
-			case "teleporttoworld":
-				_warpSystem.TeleportToWorld(sender, args);
-				break;
-
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				// Player System
-			case "cn":
-			case "nick":
-			case "changename":
-				_playerSystem.ChangeNameCommand(sender, args);
-				_nameTagSystem.UpdatePlayerTag(sender);
-				break;
-
-				// Change Skin
-			case "cs":
-			case "changeskin":
-				_playerSystem.ChangeSkin(sender, args[0]);
-				break;
-
-			case "speed":
-				_playerSystem.ChangeSpeed(sender, args);		
-				break;		
-				
-				
-				
-				
-				
-				
-				// Multiverse
-			case "dw":
-			case "deleteworld":
-				_worldSystem.DeleteWorldCommand(sender, args);
-				break;
-
-			case "cw":
-			case "createworld":
-				_worldSystem.CreateNewWorldCommand(sender, args);
-				break;
-
-			case "lw":
-			case "listworlds":
-				_worldSystem.ListWorlds(sender);
-				break;
-
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				// RankSystem
-			case "cr":
-			case "changerank":
-				_rankSystem.ChangeRankCommand(sender, args);
-				_nameTagSystem.UpdatePlayerTag(sender);
-				break;
-
-			case "rm":
-			case "removerank":
-			case "dr":
-			case "deleterank":
-				_rankSystem.ResetPlayerRank(sender, args);
-				_nameTagSystem.UpdatePlayerTag(sender);
-				break;
-
-			case "lr":
-			case "listranks":
+			case lr:
+			case listranks:
 				_rankSystem.ListAllRanks(sender);
 				break;
 				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-
-				// PlayerTag
-			case "cpt":
-			case "changeplayertag":
+			case lp:
+			case listplayer:
+				_playerSystem.PrintData(sender);
 				break;
-
 				
-			case "deop":
-				_bukkitUtility.PlayerUtility.SetPlayerAsOperator(sender, args);
+			case lw:
+			case listworlds:
+				_worldSystem.PrintData(sender);
+				break;
+				
+			case m:
+			case money:
+				_econemySystem.GetAccountBalanceCommand(sender, args);
+				break;
+				
+			case night:
+				_bukkitAPISystem.Weather.Night();
+				break;
+				
+			case npc:
+				_npcSystem.NPCCommand(sender, args);
+				break;
+				
+			case p:
+			case pay:
+				_econemySystem.PayCommand(sender, args);
+				break;
+				
+			case pc:
+			case printcolors:
+				_logger.PrintColors(sender);
+				break;
+				
+			case rain:
+				_bukkitAPISystem.Weather.Rain();
+				break;
+				
+			case setlocation:
+				break;
+				
+			case setspawn:
+				_worldSystem.SetGlobalSpawn(sender);				
+				break;
+				
+			case setwarp:
+				_warpSystem.SetWarp(sender, args);
+				break;
+				
+			case sws:
+			case setworldspawn:
+				_worldSystem.SetWorldSpawn(sender);
+				break;
+				
+			case spawn:
+				_warpSystem.WarpToGlobalSpawn(sender);
+				break;
+				
+			case speed:
+				_playerSystem.ChangeSpeed(sender, args);		
+				break;
+				
+			case sql:
+				break;
+				
+			case sysi:
+			case sysinfo:		
+			case systeminfo:
+				_coreSystem.PrintData(sender);
+				break;
+				
+			case tp:
+			case teleport:
+				_teleportSystem.TeleportToPlayer(sender, args);
+				break;
+				
+			case tpl:
+			case teleporttolocation:
+				_teleportSystem.TeleportToSpecificLocation(sender, args);
+				break;
+				
+			case tpw:
+			case teleporttoworld:
+				_teleportSystem.TeleportToWorld(sender, args);
 				break;
 			
-			case "op" :
-				_bukkitUtility.PlayerUtility.RevertPlayerAsOperator(sender, args);
+			case w:
+			case warp:
+				_warpSystem.WarpCommand(sender, args);
 				break;
 				
+			case warps:
+				_warpSystem.ListAllWarps(sender);
+				break;
 				
+			case me:
+			case whoami:
+				_bukkitAPISystem.Player.GetPlayerInfo(sender, args);	
+				break;
 				
+			case ws:
+			case worldspawn:
+				_teleportSystem.TeleportToWorldSpawn(sender);
+				break;	
 				
-				
-				// Database
-			case "sql":
-				switch (args.length)
-				{
-				case 1:
-					switch (args[0])
-					{
-					case "rp":
-					case"registerplayer":
-						break;
-					default: successful = false;
-					}
-					break;
-
-				default: successful = false;
-				}
 			default:
 				successful = false;
 				_logger.SendToSender(Module.System, MessageType.Warning, sender, "Unkown command");
+				break;			
 
+	
 			}
 		}
 		catch(TooManyParameterException tooManyParameterException)
 		{
 			String message = _config.Messages.ConsoleIO.TooManyParameters;
 			    		
-   		 	_logger.SendToSender(Module.PlayerSystem, MessageType.Warning, sender, message);
+   		 	_logger.SendToSender(Module.System, MessageType.Warning, sender, message);
 		}
 		catch(TooFewParameterException tooFewParameterException)
 		{
 			String message = "&7Too &cfew &7parameters!";
 			   		
-   		 	_logger.SendToSender(Module.PlayerSystem, MessageType.Warning, sender, message);
+   		 	_logger.SendToSender(Module.System, MessageType.Warning, sender, message);
 		}
 		catch(RedundantGameModeChangeException redundantGameModeChangeException)
 		{
@@ -477,109 +536,186 @@ public class CoreListener implements Listener
 		{
 			String message = "&7Rank &7<&c" + rankNotFoundException + "&7> &4not &7found!";
 
-			_logger.SendToSender(Module.EventSystem, MessageType.Error, sender, message);
+			_logger.SendToSender(Module.RankSystem, MessageType.Error, sender, message);
 		}
 		catch(RedundantRankChangeException redundantRankChangeException)
 		{
 			String message = "&7Player is &calready &7on this rank&8!";
 
-			_logger.SendToSender(Module.EventSystem, MessageType.Error, sender,message);
-		}
-		catch (Exception e)
-		{
-			String message = "&cThere was an error while using a command." + _config.Messages.ConsoleIO.ErrorArrow + e.getMessage();
+			_logger.SendToSender(Module.RankSystem, MessageType.Error, sender,message);
+		} 
+		catch (PlayerNotFoundException playerNotFoundException)
+		{			
+			String message = "&7Player &6<&e" + playerNotFoundException.NotFoundPlayerName + "&6> &cnot &7found!";
 
-			_logger.SendToSender(Module.EventSystem, MessageType.Error, sender, message);
-
+			_logger.SendToSender(Module.PlayerSystem, MessageType.Error, sender,message);
+		} 
+		catch (InvalidPlayerUUID e) 
+		{			
 			e.printStackTrace();
 		}
+		catch (NotForConsoleException e) 
+		{
+			String message = "&7This command is &cnot &7useable in the &eConsole&7!";
+
+			_logger.SendToSender(Module.System, MessageType.Error, sender,message);			
+		}
+		catch (InvalidGameModeException invalidGameModeException) 
+		{
+			String message = "&cInvalid &7GameMode &6<&e" + invalidGameModeException.WantedGameMode + "&6>&7.";
+
+			_logger.SendToSender(Module.PlayerSystem, MessageType.Error, sender,message);
+		}
+		catch (InvalidPlayerNameException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} 
+		catch (WarpNotFoundException warpNotFoundException) 
+		{
+			String message = "&eWarp &7with name &6<&e" + warpNotFoundException.MissingWarpName + "&6> &7does &cnot &7exist!";
+
+			_logger.SendToSender(Module.WarpSystem, MessageType.Error, sender,message);
+		} 
+		catch (PlayerNotFacingDirectionException e)
+		{
+			String message = "&7You are &cnot &7facing a &edirection&7! &bCurrentdirection&3:&b" + e.CurrentlyFacingDirection;
+
+			_logger.SendToSender(Module.PlayerSystem, MessageType.Warning, sender,message);
+		} 
+		catch (NotEnoghMoneyException e)
+		{
+			String message = "&7You have &cnot enogh &7money! Your are &6<&e" + e.MoneyDifference +  "&6> &7short";
+
+			_logger.SendToSender(Module.System, MessageType.Warning, sender,message);
+		} 
+		catch (NullAmountException e) 
+		{
+			String message = "&7You gave nothing? Is that what you want?";
+
+			_logger.SendToSender(Module.System, MessageType.Question, sender,message);
+		} 
+		catch (NegativeAmountException e) 
+		{
+			String message = "&7You &ccan't &7use negative values!";
+
+			_logger.SendToSender(Module.System, MessageType.Error, sender,message);
+		} 
+		catch (TooMuchMoneyException e) 
+		{
+			String message = "&7You have &cmaxed out &7your accound! &aCongrats!";
+
+			_logger.SendToSender(Module.System, MessageType.Warning, sender,message);
+		} 
+		catch (InvalidAmountParameterException e) 
+		{
+			String message = "&7Do you have the number wrong? &cInvalid &7number!";
+
+			_logger.SendToSender(Module.System, MessageType.Error, sender,message);
+		} 
+		catch (RedundantTransactionException e)
+		{
+			String message = "&7You are trying to give &eyourself &7your &eown money. &8Why?";
+
+			_logger.SendToSender(Module.System, MessageType.Error, sender,message);
+		} 
+		catch (InvalidWorldNameException e)
+		{
+			String message = "&7World &cnot &7found &6<&e" + e.getMessage() + "&6>&7.";
+
+			_logger.SendToSender(Module.System, MessageType.Error, sender,message);
+		} 
+		catch (OfflineSkinLoadException offlineSkinLoadException) 
+		{
+			String message = "&7Skin could &cnot &7be loaded because the server is in &eoffline&7 mode!";
+
+			_logger.SendToSender(Module.System, MessageType.Error, sender,message);
+		}	
+		catch(IllegalArgumentException IllegalArgumentException)
+		{
+			// wrong Enum constant			
+		}
+		catch(PlayerOfflineException PlayerOfflineException)
+		{
+			String message = "&7Player with name &6<&e" + PlayerOfflineException.OfflinePlayerName + "&6> &7is &coffline&7!";
+
+			_logger.SendToSender(Module.System, MessageType.Error, sender,message);
+		}
+		catch (PlayerDoesNotExistException e) 
+		{
+			String message = "Player does not exist!";
+			
+			_logger.SendToSender(Module.System, MessageType.Error, sender,message);
+		} 
+		catch (SkinLoadException e) 
+		{
+			String message = "Skin could not be loaded!";
+			
+			_logger.SendToSender(Module.System, MessageType.Error, sender,message);
+		} 
+		catch (SystemNotActiveException e) 
+		{
+			String message = "&7This &esub-plugin &7is currently &cnot &7active. You need to &aenable &7it first to use it.";
+			
+			_logger.SendToSender(Module.System, MessageType.Error, sender,message);
+		}
+		catch(Exception exception)
+		{
+			_logger.SendToSender(Module.System, MessageType.Error, sender, "Unhandled Exception accured!");
+			
+			exception.printStackTrace();
+		}	
+	
+		
+/*			
+		
+				_worldSystem.SetWorldSpawn(sender);
+				
+	
+			case "deop":
+				_bukkitAPISystem.Player.SetPlayerAsOperator(sender, args);
+				break;
+			
+			case "op" :
+				_bukkitAPISystem.Player.RevertPlayerAsOperator(sender, args);
+				break;
+
+		
+
+*/
+
+
 
 		return successful;
 	}
 
 	@EventHandler
-	public void onPlayerJoin(PlayerJoinEvent evt)
+	public void onPlayerJoin(PlayerJoinEvent playerJoinEvent)
 	{
-		int numberOfPlayers;
-		Player player = evt.getPlayer();
-		String players;
-		String playerCustomName;
-		String firstJoinMessage;
-		String reJoinMessage;
-
-		try
-		{
-			boolean isRegistered = _databaseManager.DoesPlayerExist(player);
-
-			if (!isRegistered)
-			{
-				firstJoinMessage = _config.Messages.Chat.System + _config.Messages.Chat.FirstJoin;
-
-				numberOfPlayers = _databaseManager.GetAmountOfRegisteredPlayers();
-
-				players = Integer.toString(numberOfPlayers + 1);
-
-				playerCustomName = _bukkitUtility.PlayerUtility.GetPlayerCustomName(player);
-
-				firstJoinMessage = firstJoinMessage.replace("%player%", playerCustomName);
-				firstJoinMessage = firstJoinMessage.replace("%nr%", players);
-
-				_logger.SendToSender(Module.System, MessageType.None, player, firstJoinMessage);
-
-				_databaseManager.RegisterNewPlayer(player);
-			}
-			else
-			{
-				reJoinMessage = _config.Messages.Chat.System + _config.Messages.Chat.ReJoin;
-			
-				_databaseManager.LoadPlayer(player);
-				
-				_databaseManager.UpdatePlayer(player);
-								
-				_logger.SendToSender(Module.ChatSystem, MessageType.None, player, reJoinMessage);
-			}
-		}
-		catch (Exception e)
-		{
-			_logger.SendToConsole(Module.EventSystem, MessageType.Error, "&cError in event OnPlayerJoin! " + e.getMessage());
-		}
-
-		try
-		{
-			_nameTagSystem.UpdatePlayerTag(player);
-		}
-		catch (Exception e)
-		{
-			_logger.SendToConsole(Module.NameTagSystem, MessageType.Error, "&c nameTagManipulator.UpdatePlayerTag() has caused an error! " + e.getMessage());
-		}
-	}
-
-	@EventHandler
-	public void onJoin(PlayerJoinEvent e)
-	{
-		Player player = e.getPlayer();
-
-		try
-		{
-			_fireWork.CreateExplosion(player);
-			_chatSystem.OnJoin(e);
-		}
-		catch (Exception ex)
-		{
-			_logger.SendToConsole(Module.EventSystem, MessageType.Error, "Error in event OnJoin! " + ex.getMessage());
-		}
+		final Player player = playerJoinEvent.getPlayer();		
+		
+		_playerSystem.RegisterPlayer(player);
+		
+		_nameTagSystem.UpdatePlayerTag(player);
+		
+		_fireWork.CreateExplosion(player);
+		
+		_chatSystem.OnJoin(playerJoinEvent);
 	}
 
 	@EventHandler
 	public void onLeave(PlayerQuitEvent e)
 	{
-		Player player = e.getPlayer();
+		final Player player = e.getPlayer();
+		final UUID playerUUID = player.getUniqueId();
 
 		try
-		{
-			_databaseManager.UpdatePlayer(player);
+		{			
 			_chatSystem.OnLeave(e);
-			_playerSystem.RemovePlayer(player);
+			
+			_databaseManager.Player.UpdatePlayer(player);
+			
+			_playerSystem.PlayerQuitEvent(playerUUID, player);
 		}
 		catch (Exception exception)
 		{
@@ -590,19 +726,8 @@ public class CoreListener implements Listener
 	@EventHandler
 	public void onChat(AsyncPlayerChatEvent e)
 	{
-		try
-		{
-			_chatSystem.OnChat(e);
-		}
-		catch (Exception exception)
-		{
-			String errorMessage = "Error in Event onChat! " + _config.Messages.ConsoleIO.ErrorArrow + exception.getMessage();
-
-			_logger.SendToConsole(Module.EventSystem, MessageType.Error, errorMessage);
-		}
+		_chatSystem.OnChat(e);
 	}
-
-	//@EventHandler(priority= EventPriority.MONITOR)
 	
 	@EventHandler
 	public void OnPlayerMove(PlayerMoveEvent e)
@@ -622,26 +747,29 @@ public class CoreListener implements Listener
 		_doubleJump.OnSneak(e);
 	}
 	
-	/*
 	@EventHandler
-	public void onSignChangeEvent(SignChangeEvent e)
-	{
-		//_editableSign.OnSignChangeEvent(e);
+	public void onPlayerRespawn(PlayerRespawnEvent playerRespawnEvent)
+	{		
+		try 
+		{
+			final Warp warp = _warpSystem.GetGlobalSpawn();
+			
+			playerRespawnEvent.setRespawnLocation(warp.WarpLocation);
+		} 
+		catch (WarpNotFoundException e) 
+		{
+			// Do nothing
+		}	
 	}
-
+	
 	@EventHandler
 	public void OnSignClick(PlayerInteractEvent event)
 	{
-
+		//final Player player = event.getPlayer();
+		
+		//_soundSystem.PlaySound(player, Sound.BLOCK_NOTE_BLOCK_BIT, 0);
 	}
 
-	@EventHandler
-	public void OnPlayerInteract(PlayerInteractEvent event)
-	{
-
-	}
-
-	*/
 	@EventHandler
 	public void onPing(ServerListPingEvent event) 
 	{
@@ -651,7 +779,7 @@ public class CoreListener implements Listener
 		
 		_logger.SendToConsole(Module.EventSystem, MessageType.Info, "Some pinged the Server.");
 		
-		playerName = _databaseManager.GetPlayerNameFromIP(ip);
+		playerName = _databaseManager.Player.GetPlayerNameFromIP(ip);
 		
 		if(playerName == null)
 		{
@@ -672,21 +800,43 @@ public class CoreListener implements Listener
 	}
 
 	@EventHandler
-	public void onInteract(PlayerInteractEvent event)
-	{
-	
-		
-		if(event != null)
+	public void onInteract(PlayerInteractEvent playerInteractEvent)
+	{		
+		if(playerInteractEvent != null)
 		{
-			if (event.getAction() == Action.RIGHT_CLICK_BLOCK)
+			final Action action = playerInteractEvent.getAction();
+			final Player player = playerInteractEvent.getPlayer();			
+			final boolean isRightClickedBlock = action == Action.RIGHT_CLICK_BLOCK;					
+			final org.bukkit.Material handMaterial = player.getInventory().getItemInMainHand().getType();			
+			final boolean isItemInHandCompass = handMaterial == org.bukkit.Material.COMPASS;
+			
+			if(isItemInHandCompass)
 			{
-				_signEditSystem.OnInteract(event);	
+				final Block block = player.getTargetBlock(null, 100);	
+				final boolean isRightClickAir = action == Action.RIGHT_CLICK_AIR;
+				final boolean isLeftClickAir =  action == Action.LEFT_CLICK_AIR ;
+				
+				if(isLeftClickAir)
+				{				
+					_teleportSystem.TeleportToFacingBlock(player, block);				
+				}
+				
+				if(isRightClickAir)
+				{
+					_teleportSystem.TeleportBehindBlock(player, block);
+				}
+			}			
+	
+			
+			if (isRightClickedBlock)
+			{
+				_signEditSystem.OnInteract(playerInteractEvent);	
 			}					
 		}	
 	}
 	
 	@EventHandler
-	public void onPlayerInteract(PlayerInteractEvent event) 
+	public void onPlayerInteract(PlayerInteractEvent event) throws InvalidWorldNameException 
 	{
 		EquipmentSlot e;
 		
@@ -694,57 +844,93 @@ public class CoreListener implements Listener
 		{
 			  e = event.getHand(); //Get the hand of the event and set it to 'e'.
 			  
-		        if (e.equals(EquipmentSlot.HAND))  //If the event is fired by HAND (main hand)
-		        { 
-		        	_regionSystem.OnInteract(event);
-		        }
+			  if(e != null)
+			  {
+				     if (e.equals(EquipmentSlot.HAND))  //If the event is fired by HAND (main hand)
+				        { 
+				        	_regionSystem.OnInteract(event);
+				        }
+			  }
+			  
+			  _chairsSystem.Event.OnPlayerInteract(event);	   
 		
 		}
 	}
 	
 	@EventHandler
-	  public void onEntityExplode(EntityExplodeEvent event) 
+	public void onPlayerInteractEntityEvent ()
 	{
-		/*
-	        if (event.getEntity() instanceof Creeper) {
-	            for (Block block : event.blockList().toArray(new Block[event.blockList().size()])){
-	                if(block.getType() == YOURTYPE){
-	                 
-	                }
-	            }
-	        }
-	        */
-	    }
+		
+	}
 	
 	@EventHandler
-	public void onBlockBreak(BlockBreakEvent event)
-	{	
-		Player player = event.getPlayer();
-		
-		if(player.isSneaking())
-		{
-			_timber.OnBlockBreak(event);
-		}
-		
+	public void onEntityExplode(EntityExplodeEvent event) throws InvalidWorldNameException 
+	{		
+		_regionSystem.OnEntityExplode(event);
+	}
 	
+	@EventHandler
+	public void onBlockPlace(BlockPlaceEvent event) throws PlayerNotFoundException, InvalidPlayerUUID, InvalidWorldNameException
+	{
+		final Player player = event.getPlayer();		
+		final Block block = event.getBlock();
+		final boolean hasPlayerPermission = _permissionSystem.HasPlayerPermissionToModifylock(player, block);
 		
-		/*
-		  	
-		boolean hasPlayerPermission = _permissionSystem.HasPlayerPermissionToBreakBlock(player);
-		  
-		if(!hasPlayerPermission)
-		{
-			event.setCancelled(true);
-			_logger.SendToSender(Module.PermissionSystem, MessageType.Warning, player, "&7You &cdont &7have the permission to modfy this area.");
-		}
-		else
+		if(hasPlayerPermission)
 		{
 			
 		}
-		*/
+		else
+		{
+			event.setCancelled(true);
+			
+			_logger.SendToSender(Module.PermissionSystem, MessageType.Warning, player, "&7You &cdont &7have the permission to modfy this area.");
+		}
 	}
 	
-
+	@EventHandler
+    public void onPlayerDoorOpen(PlayerInteractEvent event) throws PlayerNotFoundException, InvalidPlayerUUID, InvalidWorldNameException
+    {
+		final Player player = event.getPlayer();		
+		final Block block = event.getClickedBlock();
+		final boolean hasPlayerPermission = _permissionSystem.HasPlayerPermissionToModifylock(player,block);
+		
+		if(!hasPlayerPermission)
+		{			
+			event.setCancelled(true);
+		}
+    }
+		
+	@EventHandler
+	public void onBlockBreak(BlockBreakEvent event) throws PlayerNotFoundException, InvalidPlayerUUID, InvalidWorldNameException
+	{	
+		final Player player = event.getPlayer();		
+		final Block block = event.getBlock();
+		final boolean hasPlayerPermission = _permissionSystem.HasPlayerPermissionToModifylock(player,block);
+		
+		if(hasPlayerPermission)
+		{
+			if(player.isSneaking())
+			{
+				try 
+				{
+					
+					_timber.OnBlockBreak(event);
+				} 
+				catch (PlayerNotFoundException | InvalidPlayerUUID e)
+				{
+					e.printStackTrace();
+				}
+			}			
+		}
+		else
+		{
+			event.setCancelled(true);
+			
+			_logger.SendToSender(Module.PermissionSystem, MessageType.Warning, player, "&7You &cdont &7have the permission to modfy this area.");
+		}
+	}
+	
 	@EventHandler
 	public void onDamage(EntityDamageByEntityEvent event)	   
 	{		
@@ -753,7 +939,41 @@ public class CoreListener implements Listener
 
 	public void SetJavaPlugin(Main main)
 	{
-		_javaPlugin = main;	
+		//_javaPlugin = main;	
 	}
+	
+	  @EventHandler
+	  public void WitherProjectile(EntityExplodeEvent event) throws InvalidWorldNameException
+	  {
+	    if (event.isCancelled()) 
+	    {
+	      return;
+	    }
+	    
+	    	_regionSystem.OnEntityExplode(event);
+	  }
+	  
+	  
+	  @EventHandler
+	  public void WitherEatBlocks(EntityChangeBlockEvent event) throws InvalidWorldNameException
+	  {
+	    EntityType type = event.getEntity().getType();
+	    
+	    
+	    
+	    if (type == EntityType.WITHER) 
+	    {
+	       
+				CMRegion cmRegion = _regionSystem.TryGetRegionAt(event.getBlock());
+				
+				if(cmRegion != null)
+				{
+					event.setCancelled(true);
+	            }
+			
+	    	
+	      event.setCancelled(true);
+	    }
+	  }
 	
 }
