@@ -8,14 +8,11 @@ import de.SSC.CoreManager.Config.ConfigFiles.PingConfig;
 import de.SSC.CoreManager.Config.ConfigFiles.RankConfig;
 import de.SSC.CoreManager.Config.ConfigFiles.SignEditConfig;
 import de.SSC.CoreManager.Config.ConfigFiles.WorldsConfig;
-import de.SSC.CoreManager.Messages.Logger;
-import de.SSC.CoreManager.Messages.MessageType;
-import de.SSC.CoreManager.Messages.Module;
 
 public class Config 
 {
 	private static Config _instance;
-	private Logger _logger;
+	//private Logger _logger;
 
 	public ChatConfig Chat;
 	public PingConfig Ping;

@@ -27,6 +27,7 @@ import de.SSC.CoreManager.DataBase.Tables.CMWorldTable;
 import de.SSC.CoreManager.Messages.Logger;
 import de.SSC.CoreManager.Messages.MessageType;
 import de.SSC.CoreManager.Messages.Module;
+import de.SSC.CoreManager.Utility.MessageTags;
 import de.SSC.MySQL.MySQL;
 
 
@@ -44,7 +45,8 @@ public class DatabaseManager
 	private Config _config;	
 	private CMPlayerList _cmPlayerList;
 	private CMWorldList _cmWorldList;
-	private CoreManagerMySQLMessages _mySQLMessages; 		
+	private CoreManagerMySQLMessages _mySQLMessages; 	
+	private MessageTags _messageTags;
 	
 	private DatabaseManager()
 	{
@@ -56,6 +58,7 @@ public class DatabaseManager
 		_mySQLMessages = CoreManagerMySQLMessages.Instance();		
 		_rankList = CMRankList.Instance();
 		_cmWorldList = CMWorldList.Instance();
+		_messageTags = MessageTags.Instance();
 				
 		_mySQL = new MySQL(_config.MySQL.Hostname, _config.MySQL.Port, _config.MySQL.Database, _config.MySQL.Username, _config.MySQL.Password);		
 	
@@ -215,10 +218,10 @@ public class DatabaseManager
 	    CloseDataBase();	
 	}
 	
-	public void UpdateCustomName(Player player)
+	public void UpdateCustomName(CMPlayer cmPlayer)
 	{
-		String name = player.getCustomName();
-		UUID uuid = player.getUniqueId();
+		String name = cmPlayer.CustomName;
+		UUID uuid = cmPlayer.BukkitPlayer.getUniqueId();
 		String sql = _mySQLMessages.UpdatePlayerCustomName(uuid, name);
 			
 		SendData(sql);
@@ -234,9 +237,9 @@ public class DatabaseManager
 		{
 			throw new NullPointerException(_config.Messages.Player.PlayerParameterWasNull);
 		}		
-		
-		text = text.replace(_config.Messages.Player.PlayerTag, player.getDisplayName());	
-		
+				
+		text = _messageTags.ReplacePlayerTag(text, player);
+				
 		_logger.SendToConsole(Module.DataBase, MessageType.Info, text);		
 		
 		try
@@ -337,11 +340,6 @@ public ArrayList<CMRank> LoadAllRanks()
 		{
 			String customName =  LastResult.getString(CMPlayerTable.CustomName.toString());
 			
-			if(customName.equalsIgnoreCase("null"))
-			{
-				customName = null;
-			}			
-			
 			cmPlayer.BukkitPlayer = player;
 			cmPlayer.CustomName = customName;
 			cmPlayer.PlayerUUID =  UUID.fromString(LastResult.getString(CMPlayerTable.PlayerUUID.toString()));
@@ -377,6 +375,9 @@ public ArrayList<CMRank> LoadAllRanks()
 	{
 		boolean playerExists;
 	      String sqlMessage = _mySQLMessages.DoesPlayerExist(player);	
+	      
+	      _logger.SendToConsole(Module.DataBase, MessageType.Question, "Does player exist?");
+	      
 	      playerExists = GetBoolean(sqlMessage);
 	
 		return playerExists;
@@ -532,5 +533,12 @@ public ArrayList<CMRank> LoadAllRanks()
 	    CloseDataBase();
 		
 		return warps;
+	}
+
+	public void UpdateRank(CMPlayer cmPlayer) 
+	{
+		String sqlCommand = _mySQLMessages.UpdateRank(cmPlayer);
+		
+		SendData(sqlCommand);			
 	}
 }

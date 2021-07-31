@@ -8,19 +8,18 @@ public class MessagesRank implements IConfig
 	public String RankListFooter;
 	public String RankRow;
 	
-	public String RankTag;
-	public String RankColorTag;
+
+	
 	public String FailedToLoadAllRanks;
 
 
 	
 	public void LoadDefaults() 
 	{
-		RankTag = "{Rank}";
-		RankColorTag = "{RankColorTag}";
+
 		
 		RankListHeader = "&6======[&eAll Ranks&6]======";
-		RankRow = "&r {Rank} &6as {RankColorTag}";
+		RankRow = "&r {NAME} &6as {RANK}";
 		RankListFooter = "&6======================";		
 		
 		FailedToLoadAllRanks = "Failed to load all ranks!";

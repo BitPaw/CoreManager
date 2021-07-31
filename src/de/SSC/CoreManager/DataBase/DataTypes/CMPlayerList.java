@@ -1,6 +1,7 @@
 package de.SSC.CoreManager.DataBase.DataTypes;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.bukkit.entity.Player;
 
@@ -8,13 +9,15 @@ import de.SSC.CoreManager.Config.Config;
 import de.SSC.CoreManager.Messages.Logger;
 import de.SSC.CoreManager.Messages.MessageType;
 import de.SSC.CoreManager.Messages.Module;
+import de.SSC.CoreManager.Utility.MessageTags;
 
 public class CMPlayerList 
 {
 	private static CMPlayerList _instance;
-	private ArrayList<CMPlayer> _players;
+	private List<CMPlayer> _players;
 	private Logger _logger;
 	private Config _config;
+	private MessageTags _messageTags;
 	
 	private CMPlayerList()
 	{
@@ -23,6 +26,7 @@ public class CMPlayerList
 		_players = new ArrayList<CMPlayer>();
 		_logger = Logger.Instance();
 		_config = Config.Instance();
+		_messageTags = MessageTags.Instance();
 	}
 	
 	public static CMPlayerList Instance()
@@ -30,15 +34,15 @@ public class CMPlayerList
 		return _instance == null ? new CMPlayerList() : _instance;
 	}
 	
-	public void AddPlayer(CMPlayer player)
+	public void AddPlayer(CMPlayer cmPlayer)
 	{
 		String message = _config.Messages.Player.UserAdded;
 		
-		message = message.replace(_config.Messages.Player.PlayerTag, player.PlayerName);
+		message = _messageTags.ReplacePlayerTag(message, cmPlayer);
 		
 		_logger.SendToConsole(Module.RankList, MessageType.Info, message);
 		
-		_players.add(player);
+		_players.add(cmPlayer);
 	}
 	
 	public void RemovePlayer(Player player)
@@ -74,7 +78,7 @@ public class CMPlayerList
 		  {		
 			  String message = _config.Messages.Player.PlayerNotFound;
 			  		  
-			  message = message.replace(_config.Messages.Player.PlayerTag, playerName);
+			  message = _messageTags.ReplacePlayerTag(message, playerName);
 			  
 			  _logger.SendToConsole(Module.PlayerList, MessageType.Warning, message);				
 		  }
@@ -102,11 +106,16 @@ public class CMPlayerList
 		  {				
 			  String message = _config.Messages.Player.PlayerNotFound;
 			  
-			  message = message.replace(_config.Messages.Player.PlayerTag, player.getName());			  
+			  message = _messageTags.ReplacePlayerTag(message, player);	  
 				
 			  _logger.SendToConsole(Module.PlayerList, MessageType.Error, message);				
 		  }
 		  
 		  return returnCMPlayer;
+	}
+
+	public List<CMPlayer> GetList()
+	{
+		return _players;
 	}
 }

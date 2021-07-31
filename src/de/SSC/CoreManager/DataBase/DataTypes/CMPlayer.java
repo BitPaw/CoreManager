@@ -8,6 +8,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import de.SSC.CoreManager.Config.Config;
+import de.SSC.CoreManager.DataBase.DatabaseManager;
 import de.SSC.CoreManager.DataBase.MySQLUtillity;
 import de.SSC.CoreManager.DataBase.Tables.CoreManagerTables;
 import de.SSC.CoreManager.Messages.Logger;
@@ -15,6 +16,8 @@ import de.SSC.CoreManager.Utility.BukkitUtility;
 
 public class CMPlayer 
 {
+	private static DatabaseManager _databaseManager;
+	
 	public Player BukkitPlayer;
 	public UUID PlayerUUID;
 	public boolean IsOP;
@@ -30,7 +33,23 @@ public class CMPlayer
 	
 	public CMPlayer()
 	{
-		
+		  BukkitPlayer = null;
+		  PlayerUUID = null;
+		  IsOP = false;
+		  IsCracked = true;
+		  IsBanned = false;
+		  PlayerName = null;
+		  CustomName = null;
+		  Money = 0;
+		  RankGroup = null;
+		  IP = null; 
+		  Registered = null;
+		  LastSeen = null;
+		  
+		  if(_databaseManager == null)
+		  {
+			  _databaseManager = DatabaseManager.Instance(); 
+		  }
 	}
 	
 	public CMPlayer(Player player)
@@ -44,8 +63,8 @@ public class CMPlayer
 		IsOP = player.isOp();
 		IsCracked = bukkitUtility.IsServerCracked();
 		IsBanned = false;
-		PlayerName = player.getDisplayName();
-		CustomName = player.getCustomName();
+		PlayerName = player.getName();
+		CustomName = null;
 		Money = config.Econemy.StartMoney;
 		RankGroup = rankList.GetDefaultRank();
 		IP = bukkitUtility.GetPlayerIP(player); 
@@ -85,7 +104,7 @@ public class CMPlayer
 		
 		message = "\n&6---[&eUser No&6.&e" +userID + "&6]--------------------------------";
 		message += "\n&6 Name &7: &f" + PlayerName;
-		message += "\n&6 aka &7: &f" + (CustomName == "null" ? "&8-" : CustomName);;
+		message += "\n&6 aka &7: &f" + (CustomName == null ? "&8-" : CustomName);;
 		message += "\n&6 OP &7: &f" + (IsOP ? Yes : No);
 		message += "\n&6 Cracked &7: &f" + (IsCracked ? Yes : No);
 		message += "\n&6 Banned &7: &f" + (IsBanned ? Yes : No);
@@ -99,24 +118,81 @@ public class CMPlayer
 		sender.sendMessage(logger.TransformToColor(message));
 	}
 
-	public void SetDataForServerSide() 
+	public void SetRank(CMRank cmRank)
 	{
-		BukkitPlayer.setOp(IsOP);
+		RankGroup = cmRank;
 		
-		if(CustomName == null)
+		_databaseManager.UpdateRank(this);
+	}
+	
+	public String GetPlayerCustomName()
+	{
+		String normalName = BukkitPlayer.getName();
+		String customName = BukkitPlayer.getDisplayName();
+		String playerName;
+		
+		if(customName == null)
 		{
-			BukkitPlayer.setDisplayName(BukkitPlayer.getName());
-			BukkitPlayer.setCustomName(BukkitPlayer.getName());
+			playerName = normalName;
 		}
 		else
 		{
+			playerName = customName;
+		}
+		
+		return playerName;
+	}
+	
+	public void SetCustomName(String customName)
+	{
+		
+		boolean hasCustomName;
+		
+		if(customName == null)
+		{
+			hasCustomName = false;
+		}
+		else
+		{
+			if(customName.isEmpty())
+			{
+				hasCustomName = false;
+			}	
+			else
+			{
+				hasCustomName = true;
+			}
+		}			
+		
+		if(hasCustomName)
+		{
+			CustomName = customName;
 			BukkitPlayer.setDisplayName(CustomName);
 			BukkitPlayer.setCustomName(CustomName);
-		}	
+			BukkitPlayer.setCustomNameVisible(true);
+		}
+		else
+		{
+			CustomName = null;
+			BukkitPlayer.setDisplayName(PlayerName);
+			BukkitPlayer.setCustomName(PlayerName);
+			BukkitPlayer.setCustomNameVisible(false);
+		}
+		
+		_databaseManager.UpdateCustomName(this);
+	}
+		
+	public void SetDataForServerSide() 
+	{
+		CMRankList rankList;
+		
+		BukkitPlayer.setOp(IsOP);
+		
+		SetCustomName(CustomName);
 		
 		if(IsBanned)
 		{
-			CMRankList rankList = CMRankList.Instance();
+			rankList = CMRankList.Instance();
 			
 			RankGroup = rankList.GetRankFromName("Ban");
 		}		

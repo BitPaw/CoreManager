@@ -1,8 +1,7 @@
 package de.SSC.CoreManager.Tab;
 
-import java.util.Collection;
+import java.util.List;
 
-import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import de.SSC.CoreManager.Config.Config;
@@ -12,12 +11,14 @@ import de.SSC.CoreManager.Messages.Logger;
 import de.SSC.CoreManager.Messages.MessageType;
 import de.SSC.CoreManager.Messages.Module;
 import de.SSC.CoreManager.Utility.BukkitUtility;
+import de.SSC.CoreManager.Utility.MessageTags;
 
 public class PingTabList extends BukkitRunnable
 {
 	private static PingTabList _instance;
 	private Config _config;	
 	private Logger _logger;
+	private MessageTags _messageTags;
 	private CMPlayerList _cmPlayerList;	
 	private BukkitUtility _bukkitUtility;	
 	
@@ -25,12 +26,12 @@ public class PingTabList extends BukkitRunnable
 	  {	    
 	    _config = Config.Instance();
 	    _logger = Logger.Instance();
+	    _messageTags = MessageTags.Instance();
 	    _cmPlayerList = CMPlayerList.Instance();	
 	    _bukkitUtility =  BukkitUtility.Instance();
 	    
 		_logger.SendToConsole(Module.PingTab, MessageType.Online, _config.Messages.ConsoleIO.On);
-	  }
-	  
+	  }	  
 	
 	  public static PingTabList Instance()
 	  {
@@ -45,12 +46,11 @@ public class PingTabList extends BukkitRunnable
 	  
 	  public void run()
 	  {
-		Collection<? extends Player> players =  _bukkitUtility.GetAllOnlinePlayers();  
+		List<CMPlayer> cmPlayers = _cmPlayerList.GetList();  
 		int ping;
-		int currentPlayers= players.size();
+		int currentPlayers= cmPlayers.size();
 		String pingTag;	  	 
         String pingTabSytax;
-		CMPlayer cmPlayer;
 		
 		if(currentPlayers <= 0)
 		{
@@ -59,18 +59,19 @@ public class PingTabList extends BukkitRunnable
 
 		try
 		{	
-		    for (Player player : players)
+		    for (CMPlayer cmPlayer : cmPlayers)
 		    {
-		    	ping = _bukkitUtility.GetPlayerPing(player);
-		    	pingTag = SetColorTag(ping);	 
-	            pingTabSytax = _config.Chat.PrefixSyntax + _config.Chat.PlayerNameSyntax + pingTag;
-		        cmPlayer  = _cmPlayerList.GetPlayer(player);
+		    	ping = _bukkitUtility.GetPlayerPing(cmPlayer.BukkitPlayer);
+		    	pingTag = SetColorTag(ping);	
+		    	
+	            pingTabSytax = _config.Chat.PlayerDisplaySyntax + pingTag;
 		        
-		        pingTabSytax = _config.Chat.SetOPTag(player.isOp(), pingTabSytax); 		    			        
-			    pingTabSytax = _config.Chat.SetNameTag(cmPlayer, pingTabSytax);
-                pingTabSytax = _config.Chat.SetRankTag(cmPlayer.RankGroup, pingTabSytax);
-		      
-				player.setPlayerListName(_logger.TransformToColor(pingTabSytax));
+		        pingTabSytax = _messageTags.ReplaceOPTag(pingTabSytax, cmPlayer.BukkitPlayer.isOp()); 		    			        
+		        pingTabSytax = _messageTags.ReplaceRankTag(pingTabSytax, cmPlayer.RankGroup);
+		        pingTabSytax = _messageTags.ReplacePlayerTag(pingTabSytax, cmPlayer);
+		        pingTabSytax = _messageTags.ReplacePingTag(pingTabSytax, ping);	      
+                
+				cmPlayer.BukkitPlayer.setPlayerListName(_logger.TransformToColor(pingTabSytax));
 		    }
 		}
 		catch(Exception exeption)
@@ -121,9 +122,7 @@ public class PingTabList extends BukkitRunnable
 	    				}
 	    			}
 	    		}	    	   
-	    	}
-		  	
-		  	pingTag = pingTag.replace(_config.Ping.PingTag, String.valueOf(ping));
+	    	}		  	
 		  	
 		  	return pingTag;
 	  } 

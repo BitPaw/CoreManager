@@ -27,7 +27,6 @@ import de.SSC.CoreManager.DataBase.DataTypes.CMWorldList;
 import de.SSC.CoreManager.Editor.PlayerEditor;
 import de.SSC.CoreManager.Editor.PlayerSkinChanger;
 import de.SSC.CoreManager.Manager.ChatManager;
-import de.SSC.CoreManager.Manager.RankManager;
 import de.SSC.CoreManager.Manager.TeleportManager;
 import de.SSC.CoreManager.Manager.WorldManager;
 import de.SSC.CoreManager.Messages.Logger;
@@ -36,6 +35,7 @@ import de.SSC.CoreManager.Messages.Module;
 import de.SSC.CoreManager.Tab.PingTabList;
 import de.SSC.CoreManager.Utility.BukkitUtility;
 import de.SSC.CoreManager.Utility.FireWork;
+import de.SSC.CoreManager.Utility.MessageTags;
 
 public class CoreListener implements Listener
 {
@@ -46,7 +46,6 @@ public class CoreListener implements Listener
 	private Logger _logger;
 	private Config _config;
     
-    // II - Important
     private DatabaseManager _databaseManager;
     
 	private CMWorldList _cmWorldList;
@@ -59,7 +58,6 @@ public class CoreListener implements Listener
    // private PermissionManager _permissionManager;
     private PlayerEditor _playerEditor;
     private WorldManager _worldManager;
-    private RankManager _rankManager;
 
     // I - Extra
     private PingTabList _pingTabList;
@@ -192,7 +190,7 @@ public class CoreListener implements Listener
 				case "cn" :
 				case "nick" :
 				case "changename" : 
-					_nameChanger.SetPlayerName(sender, args);
+					_nameChanger.ChangeNameCommand(sender, args);
 					_nameTagManipulator.UpdatePlayerTag(sender);						
 					break;
 
@@ -225,7 +223,7 @@ public class CoreListener implements Listener
 				// RankSystem
 				case "cr" :
 				case "changerank" : 
-					_rankManager.ChangeRankCommand(sender, args);
+					_cmRankList.ChangeRankCommand(sender, args);
 					_nameTagManipulator.UpdatePlayerTag(sender);
 					break;
 					
@@ -233,7 +231,7 @@ public class CoreListener implements Listener
 				case "removerank" :
 				case "dr" :
 				case "deleterank" : 
-					_rankManager.ResetPlayerRank(sender);
+					_cmRankList.ResetPlayerRank(sender, args);
 					_nameTagManipulator.UpdatePlayerTag(sender);
 					break;
 
@@ -434,7 +432,8 @@ public class CoreListener implements Listener
 	public void LoadAllInstances()
 	{
 		_logger = Logger.Instance();
-		_config = Config.Instance();		
+		_config = Config.Instance();	
+		MessageTags.Instance();
 		_bukkitUtility = BukkitUtility.Instance();		
 		_databaseManager = DatabaseManager.Instance();		
     	_cmWorldList = CMWorldList.Instance();
@@ -442,8 +441,7 @@ public class CoreListener implements Listener
     	//_cmPermissionList = CMPermissionList.Instance();
     	_cmPlayerList = CMPlayerList.Instance();
     	_cmWarpList = CMWarpList.Instance();  
-    	//_permissionManager = PermissionManager.Instance();
-    	_rankManager = RankManager.Instance();    	
+    	//_permissionManager = PermissionManager.Instance(); 	
     	_pingTabList = PingTabList.Instance();		
     	_nameChanger = NameChanger.Instance();
     	_playerEditor = PlayerEditor.Instance();
@@ -452,7 +450,7 @@ public class CoreListener implements Listener
     	_nameTagManipulator = NameTagManipulator.Instance();
     	_chatManager = ChatManager.Instance();
     	_signEdit = SignEdit.Instance(); 
-    	_fireWork = FireWork.Instance();
+    	_fireWork = FireWork.Instance();    	
 	}
 
 

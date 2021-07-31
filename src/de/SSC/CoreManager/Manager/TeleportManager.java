@@ -13,6 +13,7 @@ import de.SSC.CoreManager.Messages.Logger;
 import de.SSC.CoreManager.Messages.MessageType;
 import de.SSC.CoreManager.Messages.Module;
 import de.SSC.CoreManager.Utility.BukkitUtility;
+import de.SSC.CoreManager.Utility.MessageTags;
 
 public class TeleportManager 
 {
@@ -22,6 +23,7 @@ public class TeleportManager
   private BukkitUtility  _bukkitUtility;
   private DatabaseManager _databaseManager; 
   private CMWarpList _cmWarpList;
+  private MessageTags _messageTags;
   
   public static TeleportManager Instance()
   {  
@@ -37,6 +39,7 @@ public class TeleportManager
 	  _bukkitUtility = BukkitUtility.Instance();
 	  _databaseManager = DatabaseManager.Instance();	
 	  _cmWarpList = CMWarpList.Instance();
+	  _messageTags = MessageTags.Instance();
   }
 
   private void TeleportToWarp(Player player, CMWarp cmWarp)
@@ -98,7 +101,7 @@ public void SetWarp(CommandSender sender, String[] args)
 
 			message =  _config.Messages.TeleportSystem.WarpCreated;			
 		
-			message = message.replace(_config.Messages.TeleportSystem.WarpTag, warpName);
+			message = _messageTags.ReplaceWarpTag(message, warpName);
 			
 			_logger.SendToSender(Module.TeleportSystem, MessageType.Info, player, message);	
 		}

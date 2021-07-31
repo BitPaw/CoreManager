@@ -8,9 +8,6 @@ public class MessagesWorld implements IConfig
 	public String NoLoadedWorlds;
 	public String UnkownWorld;
 	
-	public String WorldTag;
-	public String CustomWorldTag;	
-	
 	public String WorldListHeader;
 	public String WorldListFooter;
 	
@@ -27,12 +24,10 @@ public class MessagesWorld implements IConfig
 	
 	public void LoadDefaults() 
 	{
-		WorldSystemTag = "&7[&aWorld&7]&r";
+		WorldSystemTag = "&7[&aWorld&7]&r";		
+	
 		
-		WorldTag = "{World}";
-		CustomWorldTag = "{CWorldTag}";
-		
-		ErrorWhileCreatingWorld =  "&cError while creating world <&l&e{World}&c>.";
+		ErrorWhileCreatingWorld =  "&cError while creating world <&l&e{WORLD}&c>.";
 		
 		WorldListHeader = "&5===========[&dWorlds&5]===========";
 		WorldListFooter = "&5=============================";		
@@ -44,8 +39,8 @@ public class MessagesWorld implements IConfig
 		WorldNether = "&cNether";		 
 		WorldEnd = "&aEnd";		  
 		 
-		LoadedWorld = "&f {World}&5 as &r{CWorldTag} &7[&aLoaded&7]";
-		UnloadedWorld = "&8 {World}&5 as &r{CWorldTag} &7[&cUnloaded&7]";	
+		LoadedWorld = "&7 {NAME}&5 as &r{WORLD} &7[&aLoaded&7]";
+		UnloadedWorld = "&8 {NAME}&5 as &r{WORLD} &7[&cUnloaded&7]";	
 		
 		FailedToLoadAllWorlds = "Failed to load all worlds";
 		WorldIsMissing = "&cWorld is missing!";

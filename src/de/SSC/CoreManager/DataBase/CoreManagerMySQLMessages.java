@@ -4,6 +4,7 @@ import java.util.UUID;
 
 import org.bukkit.entity.Player;
 
+import de.SSC.CoreManager.DataBase.DataTypes.CMPlayer;
 import de.SSC.CoreManager.DataBase.DataTypes.CMWarp;
 import de.SSC.CoreManager.DataBase.Tables.CMPlayerTable;
 import de.SSC.CoreManager.DataBase.Tables.CMWarpTable;
@@ -13,6 +14,7 @@ import de.SSC.CoreManager.Utility.BukkitUtility;
 public class CoreManagerMySQLMessages 
 {
 	private static CoreManagerMySQLMessages _instance;
+	private BukkitUtility _bukkitUtility;
 	
 	private final String _playerUUIDTag = "{playerUUID}";
 	private final String _now = "Now()";
@@ -22,6 +24,8 @@ public class CoreManagerMySQLMessages
 	private final String _newValue = "{NewValue}";
 	private final String _atribute = "{atribute}";
 	private final String _tableTag = "{table}";
+	
+	private final String _isCracked = "{IsCracked}";
 	
 	
 	private final String _warpNameTag = "{WarpName}";
@@ -33,30 +37,26 @@ public class CoreManagerMySQLMessages
 	private final String _pitchTag = "{Pitch}";
 	
 	private final String _getAllFrommTable = "select * from {table};";	
-	private final String _updateSingleValue = "update {table} set {atribute} = \"{NewValue}\" where {key} = \"KeyValue\";";
-	private final String _getSingleValue = "select * from {table} where {key} like \"{playerUUID}\";";;
-	
+	private final String _updateSingleValue = "update {table} set {atribute} = \"{NewValue}\" where {key} = \"{KeyValue}\" and Cracked = {IsCracked};";
+	private final String _getSingleValue = "select * from {table} where {key} like \"{playerUUID}\" and Cracked = {IsCracked};";;
 
 	
 	private final String _insertWarp = "insert into {table} values(\"{WarpName}\", \"{World}\", {X}, {Y}, {Z}, {Yaw}, {Pitch});";
 	private final String _updateWarp = "update warps set {x}, {y}, {z}";
 	private final String _doesValueExist = "select COUNT(*) from {table} where {key} like \"{KeyValue}\";";
-	private final String _doesPlayerExists = "select COUNT(*) from {table} where PlayerUUID like \"{playerUUID}\" and Cracked = {KeyValue};";
+	private final String _doesPlayerExists = "select COUNT(*) from {table} where PlayerUUID like \"{playerUUID}\" and Cracked = {IsCracked};";
 	private final String _countValues = "select COUNT(*) from {table} ;";
 
 	private CoreManagerMySQLMessages()
 	{
+		_instance = this;
 		
+		_bukkitUtility = BukkitUtility.Instance();
 	}
 	
 	public static CoreManagerMySQLMessages Instance()
-	{
-		if(_instance == null)
-		{
-			_instance = new CoreManagerMySQLMessages();
-		}
-		
-		return _instance;
+	{	
+		return _instance == null ? new CoreManagerMySQLMessages() : _instance;
 	}
 	
 	public String GetAllPlayersSQLCode()
@@ -67,15 +67,13 @@ public class CoreManagerMySQLMessages
 	public String DoesPlayerExist(Player player)
 	{
 		UUID uuid = player.getUniqueId();	
-		BukkitUtility bukkitUtility = BukkitUtility.Instance();
-		String sqlSyntax = _doesPlayerExists;
-		String isCracked = bukkitUtility.IsServerCracked() == true ? "1" : "0";
+		String sqlMessage = _doesPlayerExists;
 				
-		sqlSyntax  = sqlSyntax.replace(_tableTag, CoreManagerTables.players.toString());
-		sqlSyntax =	sqlSyntax.replace(_playerUUIDTag, uuid.toString());	
-		sqlSyntax = sqlSyntax.replace(_keyValue, isCracked);	
+		sqlMessage = sqlMessage.replace(_tableTag, CoreManagerTables.players.toString());
+		sqlMessage = sqlMessage.replace(_playerUUIDTag, uuid.toString());	
+		sqlMessage = sqlMessage.replace(_isCracked, (_bukkitUtility.IsServerCracked() ? "1" : "0"));
 				
-		return sqlSyntax;
+		return sqlMessage;
 	}
 	
 	public String UpdatePlayerLastSeen(UUID uuid)
@@ -84,22 +82,33 @@ public class CoreManagerMySQLMessages
 		
 		sqlMessage  = sqlMessage.replace(_tableTag, CoreManagerTables.players.toString());
 		sqlMessage  = sqlMessage.replace(_atribute, CMPlayerTable.LastSeen.toString());
-		sqlMessage  = sqlMessage.replace(_newValue, _now);
+		sqlMessage  = sqlMessage.replace("\"" + _newValue + "\"", _now);
 		sqlMessage  = sqlMessage.replace(_key, CMPlayerTable.PlayerUUID.toString());
 		sqlMessage  = sqlMessage.replace(_keyValue, uuid.toString());
+		sqlMessage = sqlMessage.replace(_isCracked, (_bukkitUtility.IsServerCracked() ? "1" : "0"));
 		
 		return sqlMessage;
 	}
 	
 	public String UpdatePlayerCustomName(UUID uuid, String newName)
 	{
-		String sqlMessage = _updateSingleValue;
+		String sqlMessage = _updateSingleValue;		
 		
-		sqlMessage  = sqlMessage.replace(_tableTag, CoreManagerTables.players.toString());
-		sqlMessage  = sqlMessage.replace(_atribute, CMPlayerTable.CustomName.toString());
-		sqlMessage  = sqlMessage.replace(_newValue, newName);
-		sqlMessage  = sqlMessage.replace(_key, CMPlayerTable.PlayerUUID.toString());
-		sqlMessage  = sqlMessage.replace(_keyValue, uuid.toString());
+		sqlMessage = sqlMessage.replace(_tableTag, CoreManagerTables.players.toString());
+		sqlMessage = sqlMessage.replace(_atribute, CMPlayerTable.CustomName.toString());
+		
+		if(newName == null)
+		{
+			sqlMessage = sqlMessage.replace("\"" + _newValue + "\"", "NULL");
+		}
+		else
+		{
+			sqlMessage = sqlMessage.replace(_newValue, newName);
+		}		
+		
+		sqlMessage = sqlMessage.replace(_key, CMPlayerTable.PlayerUUID.toString());
+		sqlMessage = sqlMessage.replace(_keyValue, uuid.toString());
+		sqlMessage = sqlMessage.replace(_isCracked, (_bukkitUtility.IsServerCracked() ? "1" : "0"));
 		
 		return sqlMessage;
 	}
@@ -120,7 +129,8 @@ public class CoreManagerMySQLMessages
 		
 		sqlMessage = sqlMessage.replace(_tableTag, CoreManagerTables.players.toString());
 		sqlMessage = sqlMessage.replace(_key, CMPlayerTable.PlayerUUID.toString());
-		sqlMessage = sqlMessage.replace(_playerUUIDTag, uuid.toString());		
+		sqlMessage = sqlMessage.replace(_playerUUIDTag, uuid.toString());	
+		sqlMessage = sqlMessage.replace(_isCracked, (_bukkitUtility.IsServerCracked() ? "1" : "0"));
 
 		return sqlMessage;
 	}
@@ -178,5 +188,20 @@ public class CoreManagerMySQLMessages
 	public String LoadAllWarps() 
 	{		
 		return _getAllFrommTable.replace(_tableTag, CoreManagerTables.warps.toString());
+	}
+
+	public String UpdateRank(CMPlayer cmPlayer) 
+	{
+		String sqlMessage = _updateSingleValue;
+		UUID uuid = cmPlayer.BukkitPlayer.getUniqueId();
+		
+		sqlMessage  = sqlMessage.replace(_tableTag, CoreManagerTables.players.toString());
+		sqlMessage  = sqlMessage.replace(_atribute, CMPlayerTable.RankName.toString());
+		sqlMessage  = sqlMessage.replace(_newValue, cmPlayer.RankGroup.RankName);
+		sqlMessage  = sqlMessage.replace(_key, CMPlayerTable.PlayerUUID.toString());
+		sqlMessage  = sqlMessage.replace(_keyValue, uuid.toString());
+		sqlMessage = sqlMessage.replace(_isCracked, (_bukkitUtility.IsServerCracked() ? "1" : "0"));
+		
+		return sqlMessage;
 	}
 }

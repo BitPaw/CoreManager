@@ -8,6 +8,7 @@ import de.SSC.CoreManager.DataBase.DataTypes.CMWorldList;
 import de.SSC.CoreManager.Messages.Logger;
 import de.SSC.CoreManager.Messages.MessageType;
 import de.SSC.CoreManager.Messages.Module;
+import de.SSC.CoreManager.Utility.MessageTags;
 
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
@@ -19,11 +20,13 @@ public class ChatManager
 	private static ChatManager _instance;
 	private Logger _logger;
 	private Config _config;
+	private MessageTags _messageTags;
 	
 	private ChatManager()
 	{
 		_logger = Logger.Instance();
 		_config = Config.Instance();
+		_messageTags = MessageTags.Instance();
 		
 		_logger.SendToConsole(Module.ChatSystem, MessageType.Online, _config.Messages.ConsoleIO.On);
 	}
@@ -107,28 +110,29 @@ public class ChatManager
 	    {
 	    	message += _config.Chat.WorldSyntax;
 	    }
-	    
+	    /*
 	    if(_config.Chat.ShowPrefx) 
 	    {
 	    	message += _config.Chat.PrefixSyntax;	  
 	    }	    
-	
-	    message += _config.Chat.PlayerNameSyntax;			    
+	*/
+	    message += _config.Chat.PlayerDisplaySyntax;			    
 	    
+	    /*
 	    if(_config.Chat.ShowSuffix) 
 	    {
 	    	message += _config.Chat.SuffixSyntax;
 	    }	    
-	    
+	    */
 	    message += _config.Chat.MessageSyntax;
 	    
-	    
-	    message = _config.Chat.SetWorldTag(worldName, message);
-	    message = _config.Chat.SetRankTag(cmPlayer.RankGroup, message);
-	    message = _config.Chat.SetOPTag(player.isOp(), message);
-	    message = _config.Chat.SetNameTag(cmPlayer, message);
-	    message = _config.Chat.SetMessageTag(e.getMessage(), message);	    
-	    
+	   
+	    message = _messageTags.ReplaceWorldTag(message, worldName);
+	    message = _messageTags.ReplaceRankTag(message, cmPlayer.RankGroup);
+	    message = _messageTags.ReplaceOPTag(message, player.isOp());
+	    message = _messageTags.ReplacePlayerTag(message, cmPlayer);
+	    message = _messageTags.ReplaceMessageTag(message, e.getMessage());
+	    	    
 	    message = _logger.TransformToColor(message);
 	    
 	    e.setFormat(message);

@@ -4,11 +4,6 @@ import de.SSC.CoreManager.Config.IConfig;
 
 public class MessagesPlayer implements IConfig
 {
-	public String GameModeTagOld;
-	public String GameModeTagNew;
-	public String GameModeTag;
-	public String ValueTag;
-	
 	public String Creative;
 	public String Survival;
 	public String Adventure;
@@ -24,7 +19,6 @@ public class MessagesPlayer implements IConfig
 	public String NewPlayerRegistrationError;
 	public String FailedToLoadPlayer;
 	public String PlayerParameterWasNull;
-	public String PlayerTag;
 	public String FailedToGetPlayerInformation;
 	public String UserAdded;
 	public String PlayerNotFound;	
@@ -32,30 +26,26 @@ public class MessagesPlayer implements IConfig
 
 	public void LoadDefaults() 
 	{
-		PlayerTag = "{Player}";
-		GameModeTag = "{GameMode}";
-		GameModeTagNew = "{GameModeNew}";
-		GameModeTagOld = "{GameModeOld}";
-		ValueTag = "{value}";
+
 		
 		Creative = "Creative";
 		Survival = "Survival";
 		Adventure = "Adventure";
 		Spectator = "Spectator";
 		
-		GameModeChanged = "&6Gamemode changed from &e<&f{GameModeOld}&e> &6to &e<&f{GameModeNew}&e>";
+		GameModeChanged = "&6Gamemode changed from &e<&f{GAMEMODEOLD}&e> &6to &e<&f{GAMEMODENEW}&e>";
 		GameModeChangeError = "GameModeChangeError";
 		
-		HealedByAmount = "Healed by {value}";
+		HealedByAmount = "Healed by {VALUE}";
 		
-		YouAreAlreadyInThisGameMode = "&6You are already in &e<&f{GameMode}&e>&6.";		
+		YouAreAlreadyInThisGameMode = "&6You are already in &e<&f{GAMEMODE}&e>&6.";		
 		  
-		RegisteringNewPlayer = "&aRegister new Player &2<&f{Player}&2>&a...";		 
+		RegisteringNewPlayer = "&aRegister new Player &2<&f{PLAYER}&2>&a...";		 
 		NewPlayerRegistrationError = "&cRegisteration of a new player failed!"; 
 		FailedToLoadPlayer = "&cFailed to load player!";   
 		PlayerParameterWasNull = "&cThe player parameter was null!";		 
 		FailedToGetPlayerInformation = "&cFailed to load the player information!";
-		UserAdded = "&aUser &2<&f{Player}&2> &aadded!";
-		PlayerNotFound = "&cUser &4<&f{Player}&4> &cwas not found!";
+		UserAdded = "&aUser &2<&f{PLAYER}&2> &aadded!";
+		PlayerNotFound = "&cUser &4<&f{PLAYER}&4> &cwas not found!";
 	}	
 }

@@ -19,7 +19,15 @@ public class MySQLUtillity
   {
        String message;
 	  
-	  message = ic + text + ic + c + nl;
+       if(text == null)
+       {
+    	   message = "null" + c + nl;
+       }
+       else    	   
+       {
+    	   message = ic + text + ic + c + nl;
+       }    
+	  
 	  
 	  return message;  
   }
@@ -28,7 +36,14 @@ public class MySQLUtillity
   {
        String message;
 	  
-	  message = ic + text + ic + nl;
+       if(text == null)
+       {
+    	   message = "null" + c + nl;
+       }
+       else    	   
+       {
+    	   message = ic + text + ic + c + nl;
+       }   
 	  
 	  return message;  
   }

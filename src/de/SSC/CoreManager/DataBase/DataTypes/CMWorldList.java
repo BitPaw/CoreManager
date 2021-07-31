@@ -11,6 +11,7 @@ import de.SSC.CoreManager.DataBase.DatabaseManager;
 import de.SSC.CoreManager.Messages.Logger;
 import de.SSC.CoreManager.Messages.MessageType;
 import de.SSC.CoreManager.Messages.Module;
+import de.SSC.CoreManager.Utility.MessageTags;
 
 public class CMWorldList 
 {
@@ -18,6 +19,7 @@ public class CMWorldList
   private boolean Debug = true;
   private ArrayList<CMWorld> _worlds;
   private DatabaseManager _databaseManager;
+  private MessageTags _messageTags;
   private Logger _logger;
   private Config _config;
 	
@@ -29,6 +31,7 @@ public class CMWorldList
 	  _databaseManager = DatabaseManager.Instance();
 	  _logger = Logger.Instance();
 	  _config = Config.Instance();	 
+	  _messageTags = MessageTags.Instance();
   }
   
   public static CMWorldList Instance()
@@ -122,7 +125,7 @@ public class CMWorldList
 		{
 			String message = _config.Messages.World.ErrorWhileCreatingWorld + _config.Messages.ConsoleIO.ErrorArrow + e.getMessage();
 			
-			message = message.replace(_config.Messages.World.WorldTag, worldName);
+			message = _messageTags.ReplaceWorldTag(message,  worldName);
 			
 			_logger.SendToConsole(Module.WorldList, MessageType.Error, message);			
 		}
@@ -147,8 +150,8 @@ public class CMWorldList
 	                {
 	                	worldMessage  = cmWorld.BukkitWorld != null ? _config.Messages.World.LoadedWorld : _config.Messages.World.UnloadedWorld;
                    	                    
-	                    worldMessage = worldMessage.replace(_config.Messages.World.WorldTag, cmWorld.Name);
-	                    worldMessage = worldMessage.replace(_config.Messages.World.CustomWorldTag, cmWorld.CustomName);
+	                    worldMessage = _messageTags.ReplaceNameTag(worldMessage, cmWorld.Name);
+	                    worldMessage = _messageTags.ReplaceWorldTag(worldMessage,  cmWorld);
 	                    
 	                    message += worldMessage + _config.Messages.ConsoleIO.NewLine;
 	                }

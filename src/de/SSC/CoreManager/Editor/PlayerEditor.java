@@ -7,6 +7,7 @@ import de.SSC.CoreManager.Messages.Logger;
 import de.SSC.CoreManager.Messages.MessageType;
 import de.SSC.CoreManager.Messages.Module;
 import de.SSC.CoreManager.Utility.BukkitUtility;
+import de.SSC.CoreManager.Utility.MessageTags;
 
 import org.bukkit.GameMode;
 import org.bukkit.command.CommandSender;
@@ -19,6 +20,7 @@ public class PlayerEditor
     private BukkitUtility _bukkitUtility;
     private Config _config;
     private CMPlayerList _cmPlayerList;
+    private MessageTags _messageTags;
 
     public PlayerEditor()
     {
@@ -28,6 +30,7 @@ public class PlayerEditor
     	_bukkitUtility = BukkitUtility.Instance();
     	_config = Config.Instance();
     	_cmPlayerList = CMPlayerList.Instance();
+    	_messageTags = MessageTags.Instance();
     }
 
 	public static PlayerEditor Instance() 
@@ -59,7 +62,7 @@ public class PlayerEditor
                 player.setFoodLevel(maxFoodLevel);
             }
 
-            message = message.replace(_config.Messages.Player.ValueTag, Double.toString(healthDifferenz));
+            message = _messageTags.ReplaceValueTag(message, Double.toString(healthDifferenz));
 
             _logger.SendToSender(Module.PlayerManiPulator, MessageType.Info, player, message);
         }
@@ -77,76 +80,30 @@ public class PlayerEditor
                // _messager.MessageToPlayer(player, _messages.GameModeChangeError);
             }
         }
-    }
-
-    private String GetGameModeName(GameMode gamemode)
-    {
-    	String gameModeString = "Error";
-    	
-        switch(gamemode)
-        {
-			case ADVENTURE:
-				gameModeString = _config.Messages.Player.Adventure;
-				break;
-				
-			case CREATIVE:
-				gameModeString = _config.Messages.Player.Creative;
-				break;
-			
-			case SPECTATOR:
-				gameModeString = _config.Messages.Player.Spectator;
-				break;
-			
-			case SURVIVAL:
-				gameModeString = _config.Messages.Player.Survival;
-				break;  
-			
-        }   
-    	
-    	return gameModeString;
-    }
+    }  
     
     private void ModifyGameMode(CommandSender sender, Player player, GameMode toGameMode)
     {
     	GameMode currentGameMode = player.getGameMode();
-        String fromGameModeText;
-        String toGameModeText; 
     	String message;
     	
         if(currentGameMode == toGameMode)
     	{
     		 message = _config.Messages.Player.YouAreAlreadyInThisGameMode;
-    		
-    		 fromGameModeText = GetGameModeName(toGameMode);
-    		 
-    	     message = message.replace(_config.Messages.Player.GameModeTag, fromGameModeText);
+    		    		
+    		 message = _messageTags.ReplaceGameMode(message, toGameMode);
     		
     		 _logger.SendToSender(Module.PlayerManiPulator, MessageType.Warning, player, message);
     	}
     	else
     	{
     		message =  _config.Messages.Player.GameModeChanged;   
-    		
-    		fromGameModeText = GetGameModeName(toGameMode);
-            toGameModeText = GetGameModeName(currentGameMode);      
             
-            message = message.replace(_config.Messages.Player.GameModeTagNew, fromGameModeText);
-            message = message.replace(_config.Messages.Player.GameModeTagOld, toGameModeText);     
+            message = _messageTags.ReplaceGameModeOld(message, currentGameMode);
+            message = _messageTags.ReplaceGameModeNew(message, toGameMode);   
                         
             _logger.SendToSender(Module.GameModeChanger, MessageType.Info, player, message);
-    	} 
-    	  
-    	/*
-    	try
-        { 	           
-                        
-        }
-        catch (Exception e)
-        {
-        	message = _config.Messages.PlayerEditor.GameModeChangeError + gameModeText + " unkown gamemode.";
-        	
-        	 _logger.SendToSender(MessageType.Info, player, message);
-        }*/
+    	}     	 
     	
     	player.setGameMode(toGameMode);
     }

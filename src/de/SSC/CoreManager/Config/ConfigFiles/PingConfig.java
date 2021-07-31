@@ -7,9 +7,7 @@ public class PingConfig implements IConfig
 	public boolean UsePrefix;		
 	public boolean UseSuffix;
 	
-	public int PingTabListDelayMs;
-	
-	public String PingTag;
+	public int PingTabListDelayMs;	
 	
 	public String LocalPingSyntax;
 	
@@ -28,16 +26,13 @@ public class PingConfig implements IConfig
 	public String DeathPingSyntax;	
 	public int DeathPing;
 
-	
 	public void LoadDefaults() 
 	{
 		 UsePrefix = false;		
 		 UseSuffix = true;
 		
-		 PingTabListDelayMs = 60;
-		 
-		 PingTag = "{PING}";
-		 
+		 PingTabListDelayMs = 60;		 
+	
 		 LocalPingSyntax = "&7[&f{PING}&7]";
 		
 		 LowPingSyntax = "&7[&b{PING}&7]";

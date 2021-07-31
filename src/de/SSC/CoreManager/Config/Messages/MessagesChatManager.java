@@ -11,6 +11,7 @@ public class MessagesChatManager implements IConfig
 	public String Quit;
 	public String PermissionChangeName;
 	public String NameChanged;
+	public String NameChangedFrom;
 	public String NameChangesWrongCommand;	
 	public String AFK;
 	public String UnAFK;
@@ -28,7 +29,8 @@ public class MessagesChatManager implements IConfig
 		   Join = "&7[&a+&7]&r&a ";
 		   Quit = "&7[&c-&7]&r&c ";
 		   PermissionChangeName = "changename.change";
-		   NameChanged = "You are now disguised as ";
+		   NameChanged = "&7You are now disguised as &6<&f{NAME}&6>&7.";
+		   NameChangedFrom = "&7Your name got changed from {Source}";
 		   NameChangesWrongCommand = "Wrong usage! /changename <name>";	
 		   AFK = "%prefix&%player% ist nun abwesend";
 		   UnAFK = "%prefix&%player% ist wieder da";	

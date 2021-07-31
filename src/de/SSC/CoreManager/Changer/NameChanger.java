@@ -1,79 +1,115 @@
 package de.SSC.CoreManager.Changer;
 
 import org.bukkit.command.CommandSender;
-import org.bukkit.craftbukkit.v1_13_R2.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 
 import de.SSC.CoreManager.Config.Config;
-import de.SSC.CoreManager.DataBase.DatabaseManager;
+import de.SSC.CoreManager.DataBase.DataTypes.CMPlayer;
+import de.SSC.CoreManager.DataBase.DataTypes.CMPlayerList;
 import de.SSC.CoreManager.Messages.Logger;
+import de.SSC.CoreManager.Messages.MessageType;
+import de.SSC.CoreManager.Messages.Module;
+import de.SSC.CoreManager.Utility.BukkitUtility;
+import de.SSC.CoreManager.Utility.MessageTags;
 
 public class NameChanger 
 {	
 	private static NameChanger _instance;
-	private DatabaseManager _databaseManager;
 	private Config _config;
 	private Logger _logger;
+	private BukkitUtility _bukkitUtility;
+	private CMPlayerList _cmPlayerList;
+	private MessageTags _messageTags;
 	
 	private NameChanger()
 	{
+		_instance = this;
+		
 		_config = Config.Instance();
 		_logger = Logger.Instance();
-		_databaseManager = DatabaseManager.Instance();
+		_bukkitUtility = BukkitUtility.Instance();
+		_cmPlayerList = CMPlayerList.Instance();
+		_messageTags = MessageTags.Instance();
 	}
 	
-	public boolean CheckCommand(CommandSender sender, String[] args)
-	{	
-		if (!(sender instanceof CraftPlayer))
-		{
-			sender.sendMessage(_config.Messages.ConsoleIO.Error + _config.Messages.ConsoleIO.NotForConsole);
-			return false;
-		}
-
-		if (sender.hasPermission(_config.Messages.Chat.PermissionChangeName))
-		{			
-			Player senderplayer = (Player)sender;
-
-			if (args.length > 0)
-			{
-				String out = _config.Messages.ConsoleIO.Info + _config.Messages.Chat.NameChanged +  args[0];
-
-				sender.sendMessage(_logger.TransformToColor(out));
-				senderplayer.setDisplayName(args[0]);
-				SetPlayerName(sender, args);
-			}
-			else
-			{		 
-				String out = _config.Messages.ConsoleIO.Error + _config.Messages.Chat.NameChangesWrongCommand;
-
-				sender.sendMessage(_logger.TransformToColor(out));
-			}
-
-			return true;
-		}
-		sender.sendMessage("Nope, can't do that!");
-		return false;
-	}
-
-	
-	
-	  public void SetPlayerName(CommandSender sender, String[] args)
-	  {	
-		  Player player = (Player)sender;
-		  
-	    player.setCustomName(_logger.TransformToColor(args[1]));
- 
-	    
-	    _databaseManager.UpdateCustomName(player);
-	  }
-
 	public static NameChanger Instance() 
 	{
-		if(_instance == null)
-		{
-			_instance = new NameChanger();
-		}
-		
-		return _instance;
+		return _instance ==  null ? new NameChanger() : _instance;
 	}
+	
+	public void ChangeNameCommand(CommandSender sender, String[] parameter)
+	{	
+		int parameterLengh = parameter.length;
+		boolean isSenderPlayer = _bukkitUtility.IsSenderPlayer(sender);;
+		Player player;			
+		CMPlayer cmPlayer;
+		String message = "";
+		String targetedName;
+		switch(parameterLengh)
+		{
+		case 0 :
+			if(isSenderPlayer)
+			{
+				player = (Player)sender;
+				
+				cmPlayer = _cmPlayerList.GetPlayer(player);
+				
+				cmPlayer.SetCustomName(null);
+				
+				_logger.SendToSender(Module.NameChanger, MessageType.Info, sender, "Your name has been resetted!");
+			}
+			else
+			{		
+				_logger.SendToSender(Module.NameChanger, MessageType.Warning, sender, _config.Messages.ConsoleIO.NotForConsole);
+			}
+			break;
+			
+		case 1 :
+			targetedName = parameter[0];
+			
+			if(isSenderPlayer)
+			{			
+				player = (Player)sender;
+				
+				cmPlayer = _cmPlayerList.GetPlayer(player);
+				
+				cmPlayer.SetCustomName(targetedName);				
+				
+				message = _config.Messages.Chat.NameChanged;
+				
+				message = _messageTags.ReplaceNameTag(message, targetedName);
+				
+				_logger.SendToSender(Module.NameChanger, MessageType.Warning, sender, message);
+			}
+			else
+			{
+				_logger.SendToSender(Module.NameChanger, MessageType.Warning, sender, message);
+			}
+			break;
+			
+		case 2 :
+			targetedName = parameter[0];
+			
+			if(isSenderPlayer)
+			{				
+				message = _config.Messages.Chat.NameChanged +  targetedName;
+				
+				message = _messageTags.ReplaceNameTag(message, targetedName);
+						
+				_logger.SendToSender(Module.NameChanger, MessageType.Warning, sender, message);
+			}
+			else
+			{
+				_logger.SendToSender(Module.NameChanger, MessageType.Warning, sender, message);
+			}
+			break;
+			
+			
+		default:				
+				_logger.SendToSender(Module.NameChanger, MessageType.Warning, sender, _config.Messages.Chat.NameChangesWrongCommand);
+				
+				break;
+		}
+	}
+
 }
