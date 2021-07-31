@@ -7,6 +7,11 @@ website:
 main: de.SSC.CoreManager.Main
 prefix: CoreManager
 commands:
+  whoami:
+    description: Shows personal Data
+    aliases: [me]
+    permission: CoreManager.WhoAmI
+    usage: /WhoAmI
   rain:
     description: Toggles the rain.
     aliases: [rain, RAIN, Rain]
@@ -14,11 +19,91 @@ commands:
     usage: /rain
   day:
     description: Makes the day.
-   #aliases: [day, Day, DAY]
-   #permission: CoreManager.weather
-    # usage: /day
+    aliases: [day, Day, DAY]
+    permission: CoreManager.weather
+    usage: /day
+  night:
+    description: Makes Night.
+    aliases: [night]
+    permission: CoreManager.weather
+    usage: /night
+  exit:
+    description: Shutdowns the Server
+    permission: CoreManager.stop
+    usage: /exit
   changename:
      description: Changes the player name.
-     aliases: [changename, CHANGENAME, cn, CN]
+     aliases: [cn, nick]
      permission: CoreManager.changename
-     usage: /changename [player]
+     usage: /changename <player>
+  warp:
+     description: Lists all warps
+     aliases: [w, warps]
+     permission: CoreManager.warps
+     usage: /warps    
+  warps:
+     description: Warps to a location
+     aliases: [tp, warp]
+     permission: CoreManager.warp
+     usage: /warp <WarpName>
+  setwarp:
+     description: Sets a Warp point
+     aliases: [setwarp, SETWARP, SW]
+     permission: CoreManager.setwarp
+     usage: /setwarp <Name>
+  delwarp:
+     description: Sets a Warp point
+     aliases: [delwarp, dw, deletewarp]
+     permission: CoreManager.setwarp
+     usage: /delwarp <Name>
+  spawn:
+     description: Teleport to the spawn
+     aliases: [spawn,s]
+     permission: CoreManager.spawn
+     usage: /spawn
+  setspawn:
+     description: Sets the spawn point of this world
+     aliases: [ss, setspawn, sspawn]
+     permission: CoreManager.setwarp
+     usage: /setspawn
+  deleteworld:
+     description: Deletes a world
+     aliases: [dw]
+     permission: CoreManager.world
+     usage: /setspawn
+  createworld:
+     description: Creates a new World
+     aliases: [cw]
+     permission: CoreManager.world
+     usage: /setspawn
+  listworlds:
+     description: List all loaded worlds
+     aliases: [lw]
+     permission: CoreManager.world
+     usage: /listworlds   
+  multiverse:
+     description: Multiverse
+     aliases: [mv]
+     permission: CoreManager.world
+     usage: /multiverse 
+  teleporttoworld:
+     description: Teleport to another world
+     aliases: [tpw]
+     permission: CoreManager.world
+     usage: /teleporttoworld      
+  changerank:
+     description: Changes your Rank
+     aliases: [cr]
+     permission: CoreManager.ChangeRank
+     usage: /ChangeRank <Rank>       
+  deleterank:
+     description: Changes your Rank
+     aliases: [dr, rm, removerank]
+     permission: CoreManager.DeleteRank
+     usage: /DeleteRank      
+  gm:
+     description: Changes your Gamemode
+     permission: CoreManager.GameMode
+     usage: /gm           
+         
+     
