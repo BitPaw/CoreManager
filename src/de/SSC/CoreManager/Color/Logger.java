@@ -36,5 +36,19 @@ public class Logger
     {
     	return ChatColor.translateAlternateColorCodes('&', message);
     }
+    
+    public static void DataBaseWrite(String message)
+    {
+       message = ChatColor.translateAlternateColorCodes('&', Messages.DataBase + "&r " + message);
+        
+        
+        Bukkit.getConsoleSender().sendMessage(message);
+    }
+    
+    public static void DataBaseInfo(String message)
+    {
+    	DataBaseWrite("&7[&ei&7]&7 " + message);
+    }
+    
 }
  

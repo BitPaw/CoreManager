@@ -14,7 +14,7 @@ import de.SSC.CoreManager.Essentials.Chat.NameChanger;
 import de.SSC.CoreManager.SignEdit.SignEdit;
 import de.SSC.CoreManager.Tab.PingTabList;
 import de.SSC.ExtraUtility.DoubleJump.DoubleJump;
-import de.SSC.MySQL.DatabaseManager;
+import de.SSC.MySQL.DataBaseUtility.DatabaseManager;
 //-----------------------------------------------------------------------------------------------//	
  public class Main extends JavaPlugin 
  {
@@ -25,12 +25,14 @@ import de.SSC.MySQL.DatabaseManager;
    boolean _isDoubleJumpActive = false; 
    
    // --- Objects ---
+   private CoreListener _coreListener = null;
    private SignEdit signEdit = null;
    private PingTabList pingTabList = null;
    private ChatManager chatManager = null;
    private NameChanger nameChanger = null;
    private SystemInfo systemInfo = null;
    private DatabaseManager databaseManager = null;
+   
    
    // Extra Objects
    private DoubleJump doubleJump = null;
@@ -51,6 +53,7 @@ import de.SSC.MySQL.DatabaseManager;
 		   return;
 	   }
 	   
+	  
 	   signEdit = new SignEdit();	
      pingTabList = new PingTabList(this);     
      chatManager = new ChatManager();
@@ -59,6 +62,8 @@ import de.SSC.MySQL.DatabaseManager;
      systemInfo = new SystemInfo();
    
      databaseManager = new DatabaseManager();
+     
+     _coreListener = new CoreListener(databaseManager);
      
      pluginManager = Bukkit.getServer().getPluginManager();
     
@@ -70,6 +75,7 @@ import de.SSC.MySQL.DatabaseManager;
    {	
 	   try
 	   {
+		   pluginManager.registerEvents(_coreListener, this);
 		   pluginManager.registerEvents(signEdit, this); 
 		   pluginManager.registerEvents(chatManager, this);  
 		   if(_isDoubleJumpActive) pluginManager.registerEvents(doubleJump, this);
@@ -85,6 +91,8 @@ import de.SSC.MySQL.DatabaseManager;
 	   systemInfo.GetSystemInfos();
        Logger.Write(Messages.On); 
    }
+
+ 
 
    
    public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args)

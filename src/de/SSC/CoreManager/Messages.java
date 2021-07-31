@@ -2,6 +2,8 @@ package de.SSC.CoreManager;
 
 public class Messages 
 {
+	
+	public static String DataBase = "&7[&6DataBase&7]";
 	public static String CoreManager = "&7[&bCoreManager&7]";
 	public static String On = "&7[&aON&7]";
 	public static String Off = "&7[&cOFF&7]";	
