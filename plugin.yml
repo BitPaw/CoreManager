@@ -1,4 +1,4 @@
-main: de.BitFire.Main
-name: CoreManager
+main: de.PlayerPing.SSC.Main
+name: PlayerPing
 version: 1.0
 author: BitPaw
